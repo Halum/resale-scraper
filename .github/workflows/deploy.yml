@@ -30,3 +30,6 @@ jobs:
 
       - name: Reinstall crontab
         run: crontab /opt/scraper/deploy/crontab
+
+      - name: Restart viewer
+        run: sudo systemctl restart scraper-viewer
