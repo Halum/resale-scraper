@@ -1,7 +1,7 @@
 """Generic Kleinanzeigen combo-search engine, shared by every product.
 
 Per-product code supplies only classify()/combos()/config (see e.g.
-macbook/spec.py); this module owns fetching (via common/fetch.py,
+products/macbook/spec.py); this module owns fetching (via common/fetch.py,
 FlareSolverr), pacing, the scrape/collect loop, price filtering, DB upsert,
 JSON export, and the skip-flag gate. A new product needs zero copy of this
 file -- just a spec.py and a 3-line kleinanzeigen.py wrapper.

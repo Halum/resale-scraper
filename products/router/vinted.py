@@ -7,7 +7,7 @@ Run:  uv run python vinted.py [--all] [--test]
 """
 import sys, pathlib
 
-sys.path.insert(0, str(pathlib.Path(__file__).parent.parent))
+sys.path.insert(0, str(pathlib.Path(__file__).parent.parent.parent))
 from common.vinted_engine import run  # noqa: E402
 import spec  # noqa: E402
 

@@ -41,7 +41,7 @@ def is_sold_from_html(href):
 def main():
     sold = []
     notify = {}
-    for db_path in sorted(ROOT.glob("*/hunt.db")):
+    for db_path in sorted(ROOT.glob("products/*/hunt.db")):
         product = db_path.parent.name
         cfg_path = db_path.parent / "config.json"
         notify[product] = json.loads(cfg_path.read_text()).get("notify", True) if cfg_path.exists() else True

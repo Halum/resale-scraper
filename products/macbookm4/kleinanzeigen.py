@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
-"""Kleinanzeigen MacBook hunter. classify()/combos() live in spec.py; the
-scrape loop, fetching, DB and export are common/kleinanzeigen_engine.py.
+"""Kleinanzeigen MacBook Pro M4/M4 Pro/M4 Max price-floor scout. classify()/
+combos() live in spec.py; the scrape loop, fetching, DB and export are
+common/kleinanzeigen_engine.py.
 
 Run:  uv run python kleinanzeigen.py [--all] [--test]
-  --all   reclassify every ad ever seen (INSERT OR REPLACE), not just new ones
-  --test  tiny run: 2 combos, 1 page each -- for verifying changes quickly
 """
 import sys, pathlib
 
-sys.path.insert(0, str(pathlib.Path(__file__).parent.parent))
+sys.path.insert(0, str(pathlib.Path(__file__).parent.parent.parent))
 from common.kleinanzeigen_engine import run  # noqa: E402
 import spec  # noqa: E402
 

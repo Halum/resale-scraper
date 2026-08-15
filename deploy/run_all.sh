@@ -30,7 +30,7 @@ sleep $((RANDOM % 1800))
 {
   for product in macbook charger macbookm4 m2 m3 m5 router ipad; do
     echo "== $(date +%T) $product/kleinanzeigen =="
-    (cd "$product" && timeout -k 30 "$PRODUCT_TIMEOUT" uv run python kleinanzeigen.py)
+    (cd "products/$product" && timeout -k 30 "$PRODUCT_TIMEOUT" uv run python kleinanzeigen.py)
     rc=$?
     [ $rc -eq 124 ] && echo "[$product] kleinanzeigen TIMED OUT after $PRODUCT_TIMEOUT -- killed"
     [ $rc -ne 0 ] && [ $rc -ne 124 ] && echo "[$product] kleinanzeigen FAILED rc=$rc (see traceback above)"

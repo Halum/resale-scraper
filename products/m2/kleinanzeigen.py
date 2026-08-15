@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Kleinanzeigen MacBook Pro/Max M5 family price-floor scout. classify()/
+"""Kleinanzeigen MacBook Pro/Max M2 family price-floor scout. classify()/
 combos() live in spec.py; the scrape loop, fetching, DB and export are
 common/kleinanzeigen_engine.py.
 
@@ -7,7 +7,7 @@ Run:  uv run python kleinanzeigen.py [--all] [--test]
 """
 import sys, pathlib
 
-sys.path.insert(0, str(pathlib.Path(__file__).parent.parent))
+sys.path.insert(0, str(pathlib.Path(__file__).parent.parent.parent))
 from common.kleinanzeigen_engine import run  # noqa: E402
 import spec  # noqa: E402
 

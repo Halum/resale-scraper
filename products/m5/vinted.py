@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Vinted MacBook Pro M4/M4 Pro/M4 Max price-floor scout. Same classify()/
+"""Vinted MacBook Pro/Max M5 family price-floor scout. Same classify()/
 combos() as kleinanzeigen.py (spec.py); scrape loop is common/vinted_engine.py.
 
 Run:  uv run python vinted.py [--all] [--test]
 """
 import sys, pathlib
 
-sys.path.insert(0, str(pathlib.Path(__file__).parent.parent))
+sys.path.insert(0, str(pathlib.Path(__file__).parent.parent.parent))
 from common.vinted_engine import run  # noqa: E402
 import spec  # noqa: E402
 

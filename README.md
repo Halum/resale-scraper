@@ -4,17 +4,17 @@ Scrapes Kleinanzeigen + Vinted for underpriced Apple Silicon MacBooks (M1-M5, al
 
 ## How it works
 
-Each **product** (`macbook/`, `macbookm4/`, `m2/`, `m3/`, `m5/`, `charger/`, `router/`) = folder with:
+Each **product** (`products/macbook/`, `products/macbookm4/`, `products/m2/`, `products/m3/`, `products/m5/`, `products/charger/`, `products/router/`, `products/ipad/`) = folder with:
 
 - `config.json` — price range, RAM/wattage targets, chip/brand list, fallback queries, per-platform search params.
-- `spec.py` — only product-specific logic. `classify(ad) -> (verdict, spec_num, spec_label, reason)` + `combos() -> [search queries]` for Kleinanzeigen. Vinted's own search wants every query word to roughly match the title, so a keyword that's fine for Kleinanzeigen (e.g. "router") can silently miss listings titled differently ("mesh system", or the same word in another language). Every product except the MacBook family defines a separate, usually narrower `combos_vinted()` (see `charger/spec.py`, `router/spec.py`) passed to `vinted.py` instead of the Kleinanzeigen `combos`.
+- `spec.py` — only product-specific logic. `classify(ad) -> (verdict, spec_num, spec_label, reason)` + `combos() -> [search queries]` for Kleinanzeigen. Vinted's own search wants every query word to roughly match the title, so a keyword that's fine for Kleinanzeigen (e.g. "router") can silently miss listings titled differently ("mesh system", or the same word in another language). Every product except the MacBook family defines a separate, usually narrower `combos_vinted()` (see `products/charger/spec.py`, `products/router/spec.py`) passed to `vinted.py` instead of the Kleinanzeigen `combos`.
 - `kleinanzeigen.py` / `vinted.py` — ~15-line wrappers, import `spec`, call shared engine.
 
 Actual scraping (fetching, pacing, pagination, DB upsert) lives in `common/kleinanzeigen_engine.py` / `common/vinted_engine.py`. Both fetch pages through `common/fetch.py` (FlareSolverr) and parse the returned HTML with `common/parse.py` (stdlib `re`, no browser, no DOM library). New product = config.json + spec.py + two wrappers, no duplicated logic.
 
 ### Adding a new product
 
-1. Copy closest existing product folder (e.g. `m5/` for another any-chip-variant floor-price scout).
+1. Copy closest existing product folder (e.g. `products/m5/` for another any-chip-variant floor-price scout).
 2. Adjust `config.json` (price range, RAM/watt targets, chips/brands, fallback queries).
 3. Adjust regexes + `classify()`/`combos()` in `spec.py`.
 4. Add `DBS` entry in `deploy/viewer_server.py`.
@@ -26,7 +26,7 @@ Actual scraping (fetching, pacing, pagination, DB upsert) lives in `common/klein
 Set `FLARESOLVERR_URL` (and optionally `NOTIFY_WEBHOOK_URL`) — see `.env.example`.
 
 ```bash
-cd <product>
+cd products/<product>
 uv run python kleinanzeigen.py --test   # 1-2 queries, quick check
 uv run python kleinanzeigen.py           # full combo sweep
 uv run python vinted.py [--test]
@@ -38,7 +38,7 @@ Writes straight to `hunt.db` (SQLite) — no export/build step. Viewer reads liv
 
 ## Config
 
-- **`<product>/config.json`** — per-product tuning, see above.
+- **`products/<product>/config.json`** — per-product tuning, see above.
 - **`global_config.json`** (repo root) — `{"kleinanzeigen": {"enabled": bool}, "vinted": {"enabled": bool}}`. Kills a platform everywhere at once (e.g. platform starts challenging requests), no cron/code touch needed. Checked by `common/skipflag.py`.
 
 ## Fetching

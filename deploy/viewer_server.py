@@ -13,14 +13,14 @@ from common.store import rows_by_bucket, set_meta
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DBS = {
-    "macbook": ROOT / "macbook" / "hunt.db",
-    "charger": ROOT / "charger" / "hunt.db",
-    "macbookm4": ROOT / "macbookm4" / "hunt.db",
-    "m2": ROOT / "m2" / "hunt.db",
-    "m3": ROOT / "m3" / "hunt.db",
-    "m5": ROOT / "m5" / "hunt.db",
-    "router": ROOT / "router" / "hunt.db",
-    "ipad": ROOT / "ipad" / "hunt.db",
+    "macbook": ROOT / "products" / "macbook" / "hunt.db",
+    "charger": ROOT / "products" / "charger" / "hunt.db",
+    "macbookm4": ROOT / "products" / "macbookm4" / "hunt.db",
+    "m2": ROOT / "products" / "m2" / "hunt.db",
+    "m3": ROOT / "products" / "m3" / "hunt.db",
+    "m5": ROOT / "products" / "m5" / "hunt.db",
+    "router": ROOT / "products" / "router" / "hunt.db",
+    "ipad": ROOT / "products" / "ipad" / "hunt.db",
 }
 
 

@@ -5,10 +5,10 @@ __pycache__/
 
 # runtime data, not source
 *.db
-*/skipped.json
-*/skipped_vinted.json
-*/combined_results.json
-*/combined_results.js
+products/*/skipped.json
+products/*/skipped_vinted.json
+products/*/combined_results.json
+products/*/combined_results.js
 logs/
 tmp/
 

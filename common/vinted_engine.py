@@ -1,7 +1,7 @@
 """Generic Vinted combo-search engine, shared by every product.
 
 Per-product code supplies only classify()/combos()/config (see e.g.
-macbook/spec.py); this module owns fetching (via common/fetch.py,
+products/macbook/spec.py); this module owns fetching (via common/fetch.py,
 FlareSolverr), pacing, the scrape/collect loop, price filtering, DB upsert,
 and the skip-flag gate. The viewer reads straight from the DB (see
 deploy/viewer_server.py) -- no JSON export step.
