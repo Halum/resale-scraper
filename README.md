@@ -1,4 +1,4 @@
-# Deal hunter
+# Resale Scraper
 
 Scrapes Kleinanzeigen + Vinted for underpriced Apple Silicon MacBooks (M1-M5, all tiers) + USB-C GaN chargers (Anker/Ugreen/Baseus) + Xiaomi/Mi/Redmi routers (AX1800/AX3000). Hits stored in per-product SQLite DB. Single static HTML page serves it, sortable/filterable tables + price-trend chart.
 

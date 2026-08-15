@@ -1,7 +1,7 @@
 {
   "notify": false,
   "min_price": 600,
-  "max_price": 1500,
+  "max_price": 3000,
   "ram_targets": [
     16,
     32,
