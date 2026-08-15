@@ -18,7 +18,7 @@ Actual scraping (fetching, pacing, pagination, DB upsert) lives in `common/klein
 2. Adjust `config.json` (price range, RAM/watt targets, chips/brands, fallback queries).
 3. Adjust regexes + `classify()`/`combos()` in `spec.py`.
 4. Add `DBS` entry in `deploy/viewer_server.py`.
-5. Add tab + panel + `renderPaged(...)` call in `index.html`.
+5. Add tab + panel + `renderPaged(...)` call in `frontend/index.html`.
 6. Add product to loop in `deploy/run_all.sh`.
 
 ## Running
@@ -47,7 +47,7 @@ Both platforms are fetched through [FlareSolverr](https://github.com/FlareSolver
 
 ## Viewer
 
-`deploy/viewer_server.py` — static file server + two API routes: `GET /api/results/<product>` (live DB query, what `index.html` fetches on load) and `POST /api/hide` (marks an ad `hidden`, not deleted — stays excluded from future dupe-seen checks). `index.html` = whole frontend, vanilla JS, no build step, no deps. Includes:
+`deploy/viewer_server.py` — static file server (rooted at `frontend/`) + two API routes: `GET /api/results/<product>` (live DB query, what `frontend/index.html` fetches on load) and `POST /api/hide` (marks an ad `hidden`, not deleted — stays excluded from future dupe-seen checks). `frontend/index.html` = whole frontend, vanilla JS, no build step, no deps. Includes:
 
 - Per-tab sortable/paginated tables, one per product.
 - Chip/brand + RAM/wattage toggle filters (cookie-persisted, All/None bulk buttons).

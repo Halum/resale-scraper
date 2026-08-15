@@ -26,7 +26,7 @@ DBS = {
 
 class Handler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *a, **kw):
-        super().__init__(*a, directory=str(ROOT), **kw)
+        super().__init__(*a, directory=str(ROOT / "frontend"), **kw)
 
     def do_GET(self):
         if self.path.startswith("/api/results/"):
