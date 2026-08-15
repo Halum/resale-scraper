@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 # One-time host setup. No browser needed -- page fetching goes through
-# FlareSolverr (see common/fetch.py), so this only needs uv and the
-# 'scraper' user.
+# FlareSolverr (see common/fetch.py), so this only needs uv, git (for the
+# GitHub Actions runner's checkout step), and the 'scraper' user.
 set -euo pipefail
+
+apt-get update -qq
+apt-get install -y --no-install-recommends git
 
 curl -LsSf https://astral.sh/uv/install.sh | sh
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc

@@ -1,0 +1,32 @@
+name: Deploy
+
+# push to main only -- deliberately NOT triggered on pull_request. This repo
+# is public and the runner is self-hosted on the production scraper box; a
+# pull_request trigger would let anyone who opens a PR run arbitrary code on
+# it. Only pushes to main (which only trusted collaborators can do) fire
+# this.
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, scraper]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run tests
+        run: uv run --with pytest pytest tests/ -v
+
+      - name: Sync to /opt/scraper
+        run: |
+          rsync -a --delete --exclude-from=.gitignore --exclude='.git/' \
+            ./ /opt/scraper/
+
+      - name: Write .env
+        run: |
+          printf '%s\n' "${{ secrets.ENV_FILE }}" > /opt/scraper/.env
+          chmod 600 /opt/scraper/.env
+
+      - name: Reinstall crontab
+        run: crontab /opt/scraper/deploy/crontab
