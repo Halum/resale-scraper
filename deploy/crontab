@@ -1,0 +1,25 @@
+# Install: crontab deploy/crontab   (as the 'scraper' user -- never root)
+# cron's default PATH is minimal and may not include uv's install location.
+PATH=/usr/local/bin:/usr/bin:/bin
+# Times below are Berlin local time -- Debian's cron ships a patch that
+# disables per-job CRON_TZ, so the host's system timezone must BE
+# Europe/Berlin (set via `timedatectl set-timezone Europe/Berlin`).
+
+# Kleinanzeigen: 8am, 12pm, 4pm, 8pm, 11pm.
+0 8  * * * /opt/scraper/deploy/run_all.sh
+0 12 * * * /opt/scraper/deploy/run_all.sh
+0 16 * * * /opt/scraper/deploy/run_all.sh
+0 20 * * * /opt/scraper/deploy/run_all.sh
+0 23 * * * /opt/scraper/deploy/run_all.sh
+
+# Vinted: own lower-frequency schedule, offset from Kleinanzeigen's slots so
+# both platforms never fire in the same burst.
+30 10 * * * /opt/scraper/deploy/run_all_vinted.sh
+30 22 * * * /opt/scraper/deploy/run_all_vinted.sh
+
+# Sold-ad sweep, once daily. Dated log file so run_all.sh's 30-day prune
+# (find /var/log/scraper -mtime +30) can age it out -- a single
+# perpetually-appended file never ages by mtime.
+# timeout: fetch_html() has its own socket timeout, this is the coarser
+# outer backstop for the whole sweep.
+0 6 * * * cd /opt/scraper && if [ -f .env ]; then set -a; . ./.env; set +a; fi && timeout -k 60 90m uv run python common/check_sold.py >> /var/log/scraper/check_sold-$(date +\%F).log 2>&1

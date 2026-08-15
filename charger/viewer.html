@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Charger hits</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --border: #8883;
+    --bg-alt: rgba(127,127,127,0.06);
+    --accent: #0a7cff;
+    --chip-bg: rgba(10,124,255,0.12);
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    max-width: 960px; margin: 2rem auto; padding: 0 1.2rem;
+    line-height: 1.4;
+  }
+  h1 { font-size: 1.6rem; margin-bottom: 0.2rem; }
+  .subtitle { color: #888; font-size: 0.9rem; margin-bottom: 1.6rem; }
+  h2 {
+    font-size: 1.05rem; text-transform: uppercase; letter-spacing: 0.04em;
+    color: #888; margin: 2.2rem 0 0.6rem; padding-bottom: 0.3rem;
+    border-bottom: 2px solid var(--border);
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+  thead th {
+    position: sticky; top: 0; background: Canvas;
+    text-align: left; font-weight: 600; font-size: 0.78rem;
+    text-transform: uppercase; letter-spacing: 0.03em; color: #888;
+    padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--border);
+    cursor: pointer; user-select: none; white-space: nowrap;
+  }
+  thead th:hover { color: var(--accent); }
+  thead th .arrow { opacity: 0.5; margin-left: 0.2rem; }
+  tbody tr:nth-child(even) { background: var(--bg-alt); }
+  tbody tr:hover { background: var(--chip-bg); }
+  td { padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  td.price { font-weight: 700; white-space: nowrap; }
+  td.watt { white-space: nowrap; }
+  td.date { white-space: nowrap; color: #888; font-size: 0.85rem; }
+  .chip {
+    display: inline-block; padding: 0.15rem 0.5rem; border-radius: 1rem;
+    background: var(--chip-bg); color: var(--accent); font-size: 0.8rem; font-weight: 600;
+  }
+  a.title { color: inherit; text-decoration: none; }
+  a.title:hover { text-decoration: underline; }
+  #err { color: #c33; white-space: pre-wrap; font-size: 0.9rem; }
+  .pager {
+    display: flex; gap: 0.8rem; align-items: center; justify-content: center;
+    margin: 0.8rem 0 1rem; font-size: 0.85rem; color: #888;
+  }
+  .pager button {
+    cursor: pointer; border: 1px solid var(--border); background: none;
+    color: inherit; border-radius: 0.4rem; padding: 0.3rem 0.7rem; font-size: 0.85rem;
+  }
+  .pager button:disabled { cursor: default; opacity: 0.35; }
+  .empty { color: #888; padding: 1rem 0.7rem; font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<h1>Charger hits</h1>
+<div class="subtitle">Kleinanzeigen + Vinted — Anker/Ugreen/Baseus, 65/67/70/100/120/140/160W, ≤20€</div>
+<div id="err"></div>
+
+<h2>Match</h2>
+<table id="match"><thead><tr>
+  <th data-col="0" data-type="num">Price</th>
+  <th data-col="1" data-type="num">Watt</th>
+  <th data-col="2" data-type="str">Brand</th>
+  <th data-col="5" data-type="date">Posted</th>
+  <th data-col="3" data-type="str">Listing</th>
+</tr></thead><tbody></tbody></table>
+<div class="pager" id="match-pager"></div>
+
+<h2>Maybe <span style="text-transform:none;font-weight:400;">— watt not stated in the ad</span></h2>
+<table id="maybe"><thead><tr>
+  <th data-col="0" data-type="num">Price</th>
+  <th data-col="1" data-type="num">Watt</th>
+  <th data-col="2" data-type="str">Brand</th>
+  <th data-col="5" data-type="date">Posted</th>
+  <th data-col="3" data-type="str">Listing</th>
+</tr></thead><tbody></tbody></table>
+<div class="pager" id="maybe-pager"></div>
+
+<script src="combined_results.js"></script>
+<script>
+const PAGE_SIZE = 25;
+
+function row([price, watt, brand, title, href, date]) {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td class="price">${price}€</td>
+    <td class="watt">${watt ?? '?'}W</td>
+    <td>${brand ? `<span class="chip">${brand}</span>` : '?'}</td>
+    <td class="date">${date ?? '?'}</td>
+    <td><a class="title" href="${href}" target="_blank" rel="noopener">${title}</a></td>`;
+  return tr;
+}
+
+function dateKey(d) {
+  if (!d) return -1;
+  const [dd, mm, yyyy] = d.split('.');
+  return Number(yyyy) * 10000 + Number(mm) * 100 + Number(dd);
+}
+
+function sortKey(r, col, type) {
+  const v = r[col];
+  if (type === 'num') return v ?? -Infinity;
+  if (type === 'date') return dateKey(v);
+  return (v ?? '').toString().toLowerCase();
+}
+
+function renderPaged(tableId, pagerId, rows) {
+  const table = document.getElementById(tableId);
+  const tbody = table.querySelector('tbody');
+  const pager = document.getElementById(pagerId);
+  let sorted = rows.slice();
+  let page = 0;
+  let sortCol = null, sortDir = 1;
+
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td class="empty" colspan="5">Nothing here.</td></tr>';
+    return;
+  }
+
+  const pages = () => Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
+
+  function show() {
+    tbody.innerHTML = '';
+    sorted.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE).forEach(r => tbody.appendChild(row(r)));
+    pager.innerHTML = '';
+    const n = pages();
+    if (n <= 1) return;
+    const prev = document.createElement('button');
+    prev.textContent = '‹ prev';
+    prev.disabled = page === 0;
+    prev.onclick = () => { page--; show(); };
+    const info = document.createElement('span');
+    info.textContent = `page ${page + 1} / ${n} · ${sorted.length} total`;
+    const next = document.createElement('button');
+    next.textContent = 'next ›';
+    next.disabled = page >= n - 1;
+    next.onclick = () => { page++; show(); };
+    pager.append(prev, info, next);
+  }
+
+  table.querySelectorAll('thead th').forEach(th => {
+    th.addEventListener('click', () => {
+      const col = Number(th.dataset.col);
+      const type = th.dataset.type;
+      sortDir = (sortCol === col) ? -sortDir : (type === 'date' ? -1 : 1);
+      sortCol = col;
+      sorted.sort((a, b) => {
+        const ka = sortKey(a, col, type), kb = sortKey(b, col, type);
+        return ka < kb ? -sortDir : ka > kb ? sortDir : 0;
+      });
+      table.querySelectorAll('thead th .arrow').forEach(a => a.remove());
+      const arrow = document.createElement('span');
+      arrow.className = 'arrow';
+      arrow.textContent = sortDir === 1 ? '▲' : '▼';
+      th.appendChild(arrow);
+      page = 0;
+      show();
+    });
+  });
+
+  show();
+}
+
+try {
+  renderPaged('match', 'match-pager', CHARGER_DATA.match);
+  renderPaged('maybe', 'maybe-pager', CHARGER_DATA.maybe);
+} catch (e) {
+  document.getElementById('err').textContent =
+    'Could not read CHARGER_DATA (' + e.message + '). ' +
+    'Run kleinanzeigen.py or vinted.py — each writes combined_results.js next to this file.';
+}
+</script>
+</body>
+</html>

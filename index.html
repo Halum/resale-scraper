@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Deal hunter</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --border: #8883;
+    --bg-alt: rgba(127,127,127,0.06);
+    --accent: #0a7cff;
+    --chip-bg: rgba(10,124,255,0.12);
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    max-width: 960px; margin: 2rem auto; padding: 0 1.2rem;
+    line-height: 1.4;
+  }
+  h1 { font-size: 1.6rem; margin-bottom: 0.2rem; }
+  .subtitle { color: #888; font-size: 0.9rem; margin-bottom: 1rem; }
+  .tabs { display: flex; gap: 0.4rem; margin-bottom: 1.4rem; border-bottom: 2px solid var(--border); }
+  .tab {
+    cursor: pointer; padding: 0.5rem 1rem; font-size: 0.9rem; font-weight: 600;
+    color: #888; border-bottom: 2px solid transparent; margin-bottom: -2px;
+    user-select: none;
+  }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab:hover { color: var(--accent); }
+  .tab-count { font-weight: 400; opacity: 0.6; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  h2 {
+    font-size: 1.05rem; text-transform: uppercase; letter-spacing: 0.04em;
+    color: #888; margin: 2.2rem 0 0.6rem; padding-bottom: 0.3rem;
+    border-bottom: 2px solid var(--border);
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+  thead th {
+    position: sticky; top: 0; background: Canvas;
+    text-align: left; font-weight: 600; font-size: 0.78rem;
+    text-transform: uppercase; letter-spacing: 0.03em; color: #888;
+    padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--border);
+    cursor: pointer; user-select: none; white-space: nowrap;
+  }
+  thead th:hover { color: var(--accent); }
+  thead th .arrow { opacity: 0.5; margin-left: 0.2rem; }
+  tbody tr:nth-child(even) { background: var(--bg-alt); }
+  tbody tr.today { background: rgba(255, 200, 0, 0.15); }
+  tbody tr:hover { background: var(--chip-bg); }
+  td { padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  td.price { font-weight: 700; white-space: nowrap; }
+  td.spec { white-space: nowrap; }
+  td.date { white-space: nowrap; color: #888; font-size: 0.85rem; }
+  .chip {
+    display: inline-block; padding: 0.15rem 0.5rem; border-radius: 1rem;
+    background: var(--chip-bg); color: var(--accent); font-size: 0.8rem; font-weight: 600;
+  }
+  a.title { color: inherit; text-decoration: none; }
+  a.title:hover { text-decoration: underline; }
+  #err { color: #c33; white-space: pre-wrap; font-size: 0.9rem; }
+  .pager {
+    display: flex; gap: 0.8rem; align-items: center; justify-content: center;
+    margin: 0.8rem 0 1rem; font-size: 0.85rem; color: #888;
+  }
+  .pager button {
+    cursor: pointer; border: 1px solid var(--border); background: none;
+    color: inherit; border-radius: 0.4rem; padding: 0.3rem 0.7rem; font-size: 0.85rem;
+  }
+  .pager button:disabled { cursor: default; opacity: 0.35; }
+  .empty { color: #888; padding: 1rem 0.7rem; font-size: 0.9rem; }
+  .actions { white-space: nowrap; }
+  .skip-btn, .sold-btn {
+    cursor: pointer; background: none;
+    border-radius: 0.4rem; padding: 0.2rem 0.6rem; font-size: 0.8rem;
+  }
+  .sold-btn { border: 1px solid #2ecc71; color: #2ecc71; }
+  .skip-btn { border: 1px solid #e74c3c; color: #e74c3c; }
+  .skip-btn:disabled, .sold-btn:disabled { cursor: default; opacity: 0.5; }
+  .chip-filter { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin: 0 0 0.7rem; }
+  .chip-toggle {
+    cursor: pointer; border: 1px solid var(--accent); background: var(--chip-bg);
+    color: var(--accent); border-radius: 1rem; padding: 0.2rem 0.7rem; font-size: 0.8rem; font-weight: 600;
+  }
+  .chip-toggle.bulk { border-color: #888; background: rgba(127,127,127,0.12); color: #888; }
+  .chip-toggle.bulk.off { border-color: var(--border); background: none; color: #888; text-decoration: line-through; }
+  .filter-divider { align-self: stretch; width: 1px; background: var(--border); margin: 0 0.2rem; }
+  .chip-toggle.off { border-color: var(--border); background: none; color: #888; text-decoration: line-through; }
+</style>
+</head>
+<body>
+<h1>Deal hunter</h1>
+<div class="subtitle">Kleinanzeigen + Vinted, refreshed 2x/day</div>
+<div id="err"></div>
+
+<div class="tabs">
+  <div class="tab active" data-tab="mac">MacBook</div>
+  <div class="tab" data-tab="m2">M2 Floor</div>
+  <div class="tab" data-tab="m3">M3 Floor</div>
+  <div class="tab" data-tab="m4">M4 Floor</div>
+  <div class="tab" data-tab="m5">M5 Floor</div>
+  <div class="tab" data-tab="charger">Charger</div>
+  <div class="tab" data-tab="router">Router</div>
+  <div class="tab" data-tab="ipad">iPad Pro M1</div>
+  <div class="tab" data-tab="trends">Trends</div>
+</div>
+
+<div class="panel active" id="panel-mac">
+  <div class="subtitle">MacBook Pro/Max Apple Silicon, 32/36/48/64GB, ≤1500€</div>
+  <h2>Match</h2>
+  <table id="mac-match" data-spec-suffix="GB"><thead><tr>
+    <th data-col="1" data-type="num">Price</th>
+    <th data-col="2" data-type="num">RAM</th>
+    <th data-col="3" data-type="str">Chip</th>
+    <th data-col="7" data-type="str">Added</th>
+    <th data-col="8" data-type="str">Platform</th>
+    <th data-col="6" data-type="date">Posted</th>
+    <th data-col="4" data-type="str">Listing</th>
+    <th></th>
+  </tr></thead><tbody></tbody></table>
+  <div class="pager" id="mac-match-pager"></div>
+</div>
+
+<div class="panel" id="panel-m2">
+  <div class="subtitle">MacBook Pro M2 / M2 Pro / M2 Max, 32/64/96GB, 1000-3000€ -- price-floor scout</div>
+  <h2>Match</h2>
+  <table id="m2-match" data-spec-suffix="GB"><thead><tr>
+    <th data-col="1" data-type="num">Price</th>
+    <th data-col="2" data-type="num">RAM</th>
+    <th data-col="3" data-type="str">Chip</th>
+    <th data-col="7" data-type="str">Added</th>
+    <th data-col="8" data-type="str">Platform</th>
+    <th data-col="6" data-type="date">Posted</th>
+    <th data-col="4" data-type="str">Listing</th>
+    <th></th>
+  </tr></thead><tbody></tbody></table>
+  <div class="pager" id="m2-match-pager"></div>
+</div>
+
+<div class="panel" id="panel-m3">
+  <div class="subtitle">MacBook Pro M3 / M3 Pro / M3 Max, 36/48/64/96/128GB, 1000-6000€ -- price-floor scout</div>
+  <h2>Match</h2>
+  <table id="m3-match" data-spec-suffix="GB"><thead><tr>
+    <th data-col="1" data-type="num">Price</th>
+    <th data-col="2" data-type="num">RAM</th>
+    <th data-col="3" data-type="str">Chip</th>
+    <th data-col="7" data-type="str">Added</th>
+    <th data-col="8" data-type="str">Platform</th>
+    <th data-col="6" data-type="date">Posted</th>
+    <th data-col="4" data-type="str">Listing</th>
+    <th></th>
+  </tr></thead><tbody></tbody></table>
+  <div class="pager" id="m3-match-pager"></div>
+</div>
+
+<div class="panel" id="panel-m4">
+  <div class="subtitle">MacBook Pro M4 / M4 Pro / M4 Max, 48/64/128GB, 1000-6000€ -- price-floor scout</div>
+  <h2>Match</h2>
+  <table id="m4-match" data-spec-suffix="GB"><thead><tr>
+    <th data-col="1" data-type="num">Price</th>
+    <th data-col="2" data-type="num">RAM</th>
+    <th data-col="3" data-type="str">Chip</th>
+    <th data-col="7" data-type="str">Added</th>
+    <th data-col="8" data-type="str">Platform</th>
+    <th data-col="6" data-type="date">Posted</th>
+    <th data-col="4" data-type="str">Listing</th>
+    <th></th>
+  </tr></thead><tbody></tbody></table>
+  <div class="pager" id="m4-match-pager"></div>
+</div>
+
+<div class="panel" id="panel-m5">
+  <div class="subtitle">MacBook Pro M5 / M5 Pro / M5 Max, 36/48/64/128GB, 1000-6000€ -- price-floor scout</div>
+  <h2>Match</h2>
+  <table id="m5-match" data-spec-suffix="GB"><thead><tr>
+    <th data-col="1" data-type="num">Price</th>
+    <th data-col="2" data-type="num">RAM</th>
+    <th data-col="3" data-type="str">Chip</th>
+    <th data-col="7" data-type="str">Added</th>
+    <th data-col="8" data-type="str">Platform</th>
+    <th data-col="6" data-type="date">Posted</th>
+    <th data-col="4" data-type="str">Listing</th>
+    <th></th>
+  </tr></thead><tbody></tbody></table>
+  <div class="pager" id="m5-match-pager"></div>
+</div>
+
+<div class="panel" id="panel-charger">
+  <div class="subtitle">Anker/Ugreen/Baseus, 65/67/70/100/120/140/160W, ≤20€</div>
+  <h2>Match</h2>
+  <table id="charger-match" data-spec-suffix="W"><thead><tr>
+    <th data-col="1" data-type="num">Price</th>
+    <th data-col="2" data-type="num">Watt</th>
+    <th data-col="3" data-type="str">Brand</th>
+    <th data-col="7" data-type="str">Added</th>
+    <th data-col="8" data-type="str">Platform</th>
+    <th data-col="6" data-type="date">Posted</th>
+    <th data-col="4" data-type="str">Listing</th>
+    <th></th>
+  </tr></thead><tbody></tbody></table>
+  <div class="pager" id="charger-match-pager"></div>
+</div>
+
+<div class="panel" id="panel-router">
+  <div class="subtitle">Xiaomi/Mi/Redmi AX1800/AX3000, ≤25€</div>
+  <h2>Match</h2>
+  <table id="router-match" data-spec-suffix=""><thead><tr>
+    <th data-col="1" data-type="num">Price</th>
+    <th data-col="2" data-type="num">Model</th>
+    <th data-col="3" data-type="str">Brand</th>
+    <th data-col="7" data-type="str">Added</th>
+    <th data-col="8" data-type="str">Platform</th>
+    <th data-col="6" data-type="date">Posted</th>
+    <th data-col="4" data-type="str">Listing</th>
+    <th></th>
+  </tr></thead><tbody></tbody></table>
+  <div class="pager" id="router-match-pager"></div>
+</div>
+
+<div class="panel" id="panel-ipad">
+  <div class="subtitle">iPad Pro M1, 11"/12.9", any storage, ≤2000€</div>
+  <h2>Match</h2>
+  <table id="ipad-match" data-spec-suffix="GB"><thead><tr>
+    <th data-col="1" data-type="num">Price</th>
+    <th data-col="2" data-type="num">Storage</th>
+    <th data-col="3" data-type="str">Screen</th>
+    <th data-col="7" data-type="str">Added</th>
+    <th data-col="8" data-type="str">Platform</th>
+    <th data-col="6" data-type="date">Posted</th>
+    <th data-col="4" data-type="str">Listing</th>
+    <th></th>
+  </tr></thead><tbody></tbody></table>
+  <div class="pager" id="ipad-match-pager"></div>
+</div>
+
+<div class="panel" id="panel-trends">
+  <div class="subtitle">Lowest observed used-market price per generation -- filter by chip tier and RAM</div>
+  <div id="trend-tier-filter" class="chip-filter"></div>
+  <div id="trend-ram-filter" class="chip-filter"></div>
+  <div id="trend-screen-filter" class="chip-filter"></div>
+  <div id="trend-status-filter" class="chip-filter"></div>
+  <div id="trend-chart"></div>
+</div>
+
+<script>
+const PAGE_SIZE = 25;
+
+// Full reload, not re-fetch-and-rerender -- a fresh page load can't leak
+// (browser tears down the whole JS context each time).
+setInterval(() => location.reload(), 30 * 60 * 1000);
+
+function activateTab(name) {
+  const tab = document.querySelector(`.tab[data-tab="${name}"]`);
+  const panel = document.getElementById('panel-' + name);
+  if (!tab || !panel) return false;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  tab.classList.add('active');
+  panel.classList.add('active');
+  return true;
+}
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    activateTab(tab.dataset.tab);
+    setCookie('activeTab', tab.dataset.tab);
+  });
+});
+
+activateTab(getCookie('activeTab'));
+
+function platformOf(href) {
+  return href.includes('vinted.de') ? 'Vinted' : 'Kleinanzeigen';
+}
+
+const MAC_PRODUCTS = new Set(['macbook', 'm2', 'm3', 'macbookm4', 'm5']);
+const SCREEN_RE = /(\d{2})(?:[.,]\d)?\s*(?:"|”|“|''|‘‘|″|inch|zoll|pollici)/i;
+function screenOf(r) {
+  if (r[8] && r[8].screen_in) return String(r[8].screen_in);
+  const m = (r[4] || '').match(SCREEN_RE);
+  return m ? m[1] : '?';
+}
+
+function soldOf(r) {
+  return !!(r[8] && r[8].sold);
+}
+
+function hideAd(product, id) {
+  return fetch('/api/hide', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ product, id }),
+  });
+}
+
+function markSoldAd(product, id) {
+  return fetch('/api/sold', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ product, id }),
+  });
+}
+
+function row(r, suffix, product, onHidden, onSold) {
+  const [id, price, spec, label, title, href, date, firstSeen] = r;
+  const tr = document.createElement('tr');
+  const today = new Date().toISOString().split('T')[0];
+  if (firstSeen && firstSeen.split('T')[0] === today) tr.classList.add('today');
+  tr.innerHTML = `
+    <td class="price">${price}€</td>
+    <td class="spec">${spec ?? '?'}${suffix}</td>
+    <td>${label ? `<span class="chip">${label}</span>` : '?'}</td>
+    <td class="date">${firstSeen ? firstSeen.split('T')[0] : '?'}</td>
+    <td>${platformOf(href)}</td>
+    <td class="date">${date ?? '?'}</td>
+    <td><a class="title" href="${href}" target="_blank" rel="noopener">${title}</a></td>
+    <td class="actions"><button class="sold-btn" type="button"${soldOf(r) ? ' disabled' : ''}>Sold</button> <button class="skip-btn" type="button">Skip</button></td>`;
+  tr.querySelector('.skip-btn').addEventListener('click', (e) => {
+    if (!confirm(`Skip "${title}"? This hides it permanently.`)) return;
+    const btn = e.currentTarget;
+    btn.disabled = true;
+    btn.textContent = '…';
+    hideAd(product, id)
+      .then(res => { if (!res.ok) throw new Error(res.status); onHidden(id); })
+      .catch(() => { btn.disabled = false; btn.textContent = 'Skip'; });
+  });
+  tr.querySelector('.sold-btn').addEventListener('click', (e) => {
+    if (!confirm(`Mark "${title}" as sold?`)) return;
+    const btn = e.currentTarget;
+    btn.disabled = true;
+    btn.textContent = '…';
+    markSoldAd(product, id)
+      .then(res => { if (!res.ok) throw new Error(res.status); onSold(id, r); })
+      .catch(() => { btn.disabled = false; btn.textContent = 'Sold'; });
+  });
+  return tr;
+}
+
+function dateKey(d) {
+  if (!d) return -1;
+  const [dd, mm, yyyy] = d.split('.');
+  if (!yyyy) return -1;   // Vinted relative-time strings ("13 min.") don't parse -- sink to one end
+  return Number(yyyy) * 10000 + Number(mm) * 100 + Number(dd);
+}
+
+function sortKey(r, col, type) {
+  const v = col === 8 ? platformOf(r[5]) : r[col];
+  if (type === 'num') return v ?? -Infinity;
+  if (type === 'date') return dateKey(v);
+  return (v ?? '').toString().toLowerCase();
+}
+
+function getCookie(name) {
+  const m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
+function setCookie(name, value) {
+  const d = new Date();
+  d.setTime(d.getTime() + 365 * 86400000);
+  document.cookie = `${name}=${encodeURIComponent(value)};expires=${d.toUTCString()};path=/;SameSite=Lax`;
+}
+
+function setTabCount(tabName, n) {
+  const tab = document.querySelector(`.tab[data-tab="${tabName}"]`);
+  if (!tab) return;
+  let badge = tab.querySelector('.tab-count');
+  if (!badge) {
+    badge = document.createElement('span');
+    badge.className = 'tab-count';
+    tab.appendChild(badge);
+  }
+  badge.textContent = ` (${n})`;
+}
+
+function renderPaged(tableId, pagerId, rows, product, tabName) {
+  const table = document.getElementById(tableId);
+  const suffix = table.dataset.specSuffix;
+  const tbody = table.querySelector('tbody');
+  const pager = document.getElementById(pagerId);
+  let liveRows = rows.slice();   // survives Skip clicks; chip filter re-derives from this
+  let sorted = [];
+  let page = 0;
+  let sortCol = null, sortDir = 1;
+
+  const cookieName = 'chipFilter_' + product;
+  const hidden = new Set();
+  try {
+    const saved = getCookie(cookieName);
+    if (saved) JSON.parse(saved).forEach(l => hidden.add(l));
+  } catch (e) { /* malformed cookie -- ignore, start unfiltered */ }
+
+  const ramCookieName = 'ramFilter_' + product;
+  const ramHidden = new Set();
+  try {
+    const saved = getCookie(ramCookieName);
+    if (saved) JSON.parse(saved).forEach(l => ramHidden.add(l));
+  } catch (e) { /* malformed cookie -- ignore, start unfiltered */ }
+
+  function toggleBar(labels, hiddenSet, cookieKey) {
+    if (labels.length < 1) return;
+    const bar = document.createElement('div');
+    bar.className = 'chip-filter';
+    table.parentNode.insertBefore(bar, table);
+
+    function renderBar() {
+      bar.innerHTML = '';
+      const all = document.createElement('button');
+      all.type = 'button';
+      all.className = 'chip-toggle bulk';
+      all.textContent = 'All';
+      all.addEventListener('click', () => {
+        hiddenSet.clear();
+        setCookie(cookieKey, JSON.stringify([...hiddenSet]));
+        renderBar();
+        applyFilter();
+      });
+      const none = document.createElement('button');
+      none.type = 'button';
+      none.className = 'chip-toggle bulk';
+      none.textContent = 'None';
+      none.addEventListener('click', () => {
+        labels.forEach(l => hiddenSet.add(l));
+        setCookie(cookieKey, JSON.stringify([...hiddenSet]));
+        renderBar();
+        applyFilter();
+      });
+      const divider = document.createElement('span');
+      divider.className = 'filter-divider';
+      bar.append(all, none, divider);
+      labels.forEach(label => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'chip-toggle' + (hiddenSet.has(label) ? ' off' : '');
+        btn.textContent = label;
+        btn.addEventListener('click', () => {
+          if (hiddenSet.has(label)) hiddenSet.delete(label); else hiddenSet.add(label);
+          setCookie(cookieKey, JSON.stringify([...hiddenSet]));
+          renderBar();
+          applyFilter();
+        });
+        bar.appendChild(btn);
+      });
+    }
+
+    renderBar();
+  }
+
+  const labels = [...new Set(rows.map(r => r[3] ?? '?'))].sort();
+  toggleBar(labels, hidden, cookieName);
+
+  const ramLabels = [...new Set(rows.map(r => r[2] ?? '?'))].sort((a, b) => Number(a) - Number(b));
+  toggleBar(ramLabels, ramHidden, ramCookieName);
+
+  const isMac = MAC_PRODUCTS.has(product);
+  const screenCookieName = 'screenFilter_' + product;
+  const screenHidden = new Set();
+  if (isMac) {
+    try {
+      const saved = getCookie(screenCookieName);
+      if (saved) JSON.parse(saved).forEach(l => screenHidden.add(l));
+    } catch (e) { /* malformed cookie -- ignore, start unfiltered */ }
+    const screenLabels = [...new Set(rows.map(screenOf))].sort();
+    toggleBar(screenLabels, screenHidden, screenCookieName);
+  }
+
+  const soldCookieName = 'soldFilter_' + product;
+  const soldHidden = new Set();
+  try {
+    const saved = getCookie(soldCookieName);
+    if (saved) JSON.parse(saved).forEach(l => soldHidden.add(l));
+    else soldHidden.add('Sold');   // no cookie yet -- hide sold by default
+  } catch (e) { soldHidden.add('Sold'); }
+  const soldLabels = rows.some(soldOf) ? ['Sold'] : [];
+  toggleBar(soldLabels, soldHidden, soldCookieName);
+
+  const pages = () => Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
+
+  function applyFilter() {
+    sorted = liveRows.filter(r => !hidden.has(r[3] ?? '?') && !ramHidden.has(r[2] ?? '?')
+      && (!isMac || !screenHidden.has(screenOf(r)))
+      && (!soldOf(r) || !soldHidden.has('Sold')));
+    if (sortCol !== null) {
+      const type = table.querySelector(`thead th[data-col="${sortCol}"]`).dataset.type;
+      sorted.sort((a, b) => {
+        const ka = sortKey(a, sortCol, type), kb = sortKey(b, sortCol, type);
+        return ka < kb ? -sortDir : ka > kb ? sortDir : 0;
+      });
+    }
+    page = 0;
+    show();
+  }
+
+  function onHidden(id) {
+    liveRows = liveRows.filter(r => r[0] !== id);
+    applyFilter();
+  }
+
+  function onSold(id, r) {
+    r[8] = { ...(r[8] || {}), sold: true };
+    applyFilter();
+  }
+
+  function show() {
+    setTabCount(tabName, sorted.length);
+    if (!sorted.length) {
+      tbody.innerHTML = '<tr><td class="empty" colspan="8">Nothing here.</td></tr>';
+      pager.innerHTML = '';
+      return;
+    }
+    tbody.innerHTML = '';
+    sorted.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE)
+      .forEach(r => tbody.appendChild(row(r, suffix, product, onHidden, onSold)));
+    pager.innerHTML = '';
+    const n = pages();
+    if (n <= 1) return;
+    const prev = document.createElement('button');
+    prev.textContent = '‹ prev';
+    prev.disabled = page === 0;
+    prev.onclick = () => { page--; show(); };
+    const info = document.createElement('span');
+    info.textContent = `page ${page + 1} / ${n} · ${sorted.length} total`;
+    const next = document.createElement('button');
+    next.textContent = 'next ›';
+    next.disabled = page >= n - 1;
+    next.onclick = () => { page++; show(); };
+    pager.append(prev, info, next);
+  }
+
+  table.querySelectorAll('thead th').forEach(th => {
+    th.addEventListener('click', () => {
+      const col = Number(th.dataset.col);
+      const type = th.dataset.type;
+      sortDir = (sortCol === col) ? -sortDir : (type === 'date' ? -1 : 1);
+      sortCol = col;
+      table.querySelectorAll('thead th .arrow').forEach(a => a.remove());
+      const arrow = document.createElement('span');
+      arrow.className = 'arrow';
+      arrow.textContent = sortDir === 1 ? '▲' : '▼';
+      th.appendChild(arrow);
+      applyFilter();
+    });
+  });
+
+  applyFilter();
+}
+
+function renderTrends(macResults) {
+  const container = document.getElementById('trend-chart');
+  if (!container) return;
+
+  const all = macResults.flatMap(d => d.match ?? []);
+
+  const GEN_RE = /^M(\d)(?:\s+(\w+))?/;
+  const points = all.map(r => {
+    const m = GEN_RE.exec(r[3] ?? '');
+    if (!m) return null;
+    return { gen: Number(m[1]), tier: m[2] || 'Base', ram: r[2], price: r[1], title: r[4], href: r[5],
+             screen: screenOf(r), status: soldOf(r) ? 'Sold' : 'Active' };
+  }).filter(Boolean);
+
+  function escapeXml(s) {
+    return (s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' }[c]));
+  }
+
+  const tierOrder = ['Base', 'Pro', 'Max', 'Ultra'];
+  const tiers = tierOrder.filter(t => points.some(p => p.tier === t));
+  const rams = [...new Set(points.map(p => p.ram))].sort((a, b) => a - b);
+
+  const tierHidden = new Set();
+  try { const s = getCookie('trendTierHidden'); if (s) JSON.parse(s).forEach(t => tierHidden.add(t)); } catch (e) { /* ignore */ }
+  const ramHidden = new Set();
+  try { const s = getCookie('trendRamHidden'); if (s) JSON.parse(s).forEach(t => ramHidden.add(t)); } catch (e) { /* ignore */ }
+  const screens = [...new Set(points.map(p => p.screen))].sort();
+  const screenHidden = new Set();
+  try { const s = getCookie('trendScreenHidden'); if (s) JSON.parse(s).forEach(t => screenHidden.add(t)); } catch (e) { /* ignore */ }
+  const statuses = [...new Set(points.map(p => p.status))].sort();
+  const statusHidden = new Set();
+  try {
+    const s = getCookie('trendStatusHidden');
+    if (s) JSON.parse(s).forEach(t => statusHidden.add(t));
+    else statusHidden.add('Sold');   // no cookie yet -- hide sold by default
+  } catch (e) { statusHidden.add('Sold'); }
+
+  const PALETTE = ['#0a7cff', '#ff6b35', '#2ecc71', '#8e44ad', '#e91e8c',
+                   '#f1c40f', '#00bcd4', '#e74c3c', '#795548', '#607d8b'];
+
+  function draw() {
+    const activeTiers = tiers.filter(t => !tierHidden.has(t));
+    const activeRams = rams.filter(r => !ramHidden.has(r));
+    const activeStatuses = statuses.filter(s => !statusHidden.has(s));
+    const activePoints = points.filter(p => !screenHidden.has(p.screen) && !statusHidden.has(p.status));
+    const gens = [1, 2, 3, 4, 5];
+    const series = [];
+    let colorIdx = 0;
+    activeTiers.forEach(tier => {
+      activeRams.forEach((ram) => {
+        const color = PALETTE[colorIdx % PALETTE.length];
+        let usedColor = false;
+        activeStatuses.forEach(status => {
+          const vals = gens.map(g => {
+            const matching = activePoints.filter(p => p.tier === tier && p.ram === ram && p.status === status && p.gen === g);
+            if (!matching.length) return null;
+            return matching.reduce((best, p) => (p.price < best.price ? p : best));
+          });
+          if (vals.some(v => v !== null)) {
+            series.push({ tier, ram, status, color, vals });
+            usedColor = true;
+          }
+        });
+        if (usedColor) colorIdx++;
+      });
+    });
+
+    const allPrices = series.flatMap(s => s.vals).filter(v => v !== null).map(v => v.price);
+    if (!allPrices.length) {
+      container.innerHTML = '<div class="empty">No data for selected filters.</div>';
+      return;
+    }
+    const minP = Math.min(...allPrices), maxP = Math.max(...allPrices);
+    const W = 640, H = 320, padL = 60, padR = 20, padT = 20, padB = 40;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+    const xAt = i => padL + (i / (gens.length - 1)) * plotW;
+    const yAt = p => padT + plotH - ((p - minP) / Math.max(1, maxP - minP)) * plotH;
+
+    let svg = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:${W}px;">`;
+    const steps = 5;
+    for (let i = 0; i <= steps; i++) {
+      const val = minP + (maxP - minP) * (i / steps);
+      const yy = yAt(val);
+      svg += `<line x1="${padL}" y1="${yy}" x2="${W - padR}" y2="${yy}" stroke="var(--border)" stroke-width="1"/>`;
+      svg += `<text x="${padL - 8}" y="${yy + 4}" font-size="10" text-anchor="end" fill="#888">${Math.round(val)}€</text>`;
+    }
+    gens.forEach((g, i) => {
+      svg += `<text x="${xAt(i)}" y="${H - padB + 18}" font-size="11" text-anchor="middle" fill="#888">M${g}</text>`;
+    });
+    series.forEach((s) => {
+      const dash = s.status === 'Sold' ? ' stroke-dasharray="6,4"' : '';
+      const pts = s.vals.map((v, i) => v !== null ? [xAt(i), yAt(v.price)] : null);
+      for (let i = 0; i < pts.length - 1; i++) {
+        if (pts[i] && pts[i + 1]) {
+          svg += `<line x1="${pts[i][0]}" y1="${pts[i][1]}" x2="${pts[i + 1][0]}" y2="${pts[i + 1][1]}" stroke="${s.color}" stroke-width="2"${dash}/>`;
+        }
+      }
+      pts.forEach((pt, i) => {
+        if (!pt) return;
+        const v = s.vals[i];
+        const tip = `${escapeXml(v.title)} -- ${v.price}€ (${s.status})`;
+        svg += `<a href="${escapeXml(v.href)}" target="_blank" rel="noopener">`
+          + `<title>${tip}</title>`
+          + `<circle cx="${pt[0]}" cy="${pt[1]}" r="5" fill="${s.status === 'Sold' ? 'none' : s.color}" stroke="${s.color}" stroke-width="2" style="cursor:pointer"/>`
+          + `<text x="${pt[0]}" y="${pt[1] - 9}" font-size="10" text-anchor="middle" fill="${s.color}">${v.price}€</text>`
+          + `</a>`;
+      });
+    });
+    svg += '</svg>';
+
+    const legend = '<div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:0.5rem;font-size:0.85rem;">'
+      + series.map(s => `<span style="color:${s.color}">${s.status === 'Sold' ? '⊖' : '●'} ${s.tier} ${s.ram}GB${s.status === 'Sold' ? ' (sold)' : ''}</span>`).join('')
+      + '</div>';
+
+    container.innerHTML = svg + legend;
+  }
+
+  function toggleBar(mountId, labels, hiddenSet, cookieKey) {
+    const bar = document.getElementById(mountId);
+
+    function renderBar() {
+      bar.innerHTML = '';
+      const all = document.createElement('button');
+      all.type = 'button';
+      all.className = 'chip-toggle bulk';
+      all.textContent = 'All';
+      all.addEventListener('click', () => {
+        hiddenSet.clear();
+        setCookie(cookieKey, JSON.stringify([...hiddenSet]));
+        renderBar();
+        draw();
+      });
+      const none = document.createElement('button');
+      none.type = 'button';
+      none.className = 'chip-toggle bulk';
+      none.textContent = 'None';
+      none.addEventListener('click', () => {
+        labels.forEach(l => hiddenSet.add(l));
+        setCookie(cookieKey, JSON.stringify([...hiddenSet]));
+        renderBar();
+        draw();
+      });
+      const divider = document.createElement('span');
+      divider.className = 'filter-divider';
+      bar.append(all, none, divider);
+      labels.forEach(label => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'chip-toggle' + (hiddenSet.has(label) ? ' off' : '');
+        btn.textContent = label;
+        btn.addEventListener('click', () => {
+          if (hiddenSet.has(label)) hiddenSet.delete(label); else hiddenSet.add(label);
+          setCookie(cookieKey, JSON.stringify([...hiddenSet]));
+          renderBar();
+          draw();
+        });
+        bar.appendChild(btn);
+      });
+    }
+
+    renderBar();
+  }
+
+  toggleBar('trend-tier-filter', tiers, tierHidden, 'trendTierHidden');
+  toggleBar('trend-ram-filter', rams, ramHidden, 'trendRamHidden');
+  toggleBar('trend-screen-filter', screens, screenHidden, 'trendScreenHidden');
+  toggleBar('trend-status-filter', statuses, statusHidden, 'trendStatusHidden');
+  draw();
+}
+
+async function loadResults(product) {
+  const res = await fetch('/api/results/' + product);
+  if (!res.ok) throw new Error(`${product}: HTTP ${res.status}`);
+  return res.json();
+}
+
+(async () => {
+  try {
+    const [mac, m2, m3, m4, m5, charger, router, ipad] = await Promise.all(
+      ['macbook', 'm2', 'm3', 'macbookm4', 'm5', 'charger', 'router', 'ipad'].map(loadResults));
+    renderPaged('mac-match', 'mac-match-pager', mac.match, 'macbook', 'mac');
+    renderPaged('m2-match', 'm2-match-pager', m2.match, 'm2', 'm2');
+    renderPaged('m3-match', 'm3-match-pager', m3.match, 'm3', 'm3');
+    renderPaged('m4-match', 'm4-match-pager', m4.match, 'macbookm4', 'm4');
+    renderPaged('m5-match', 'm5-match-pager', m5.match, 'm5', 'm5');
+    renderPaged('charger-match', 'charger-match-pager', charger.match, 'charger', 'charger');
+    renderPaged('router-match', 'router-match-pager', router.match, 'router', 'router');
+    renderPaged('ipad-match', 'ipad-match-pager', ipad.match, 'ipad', 'ipad');
+    renderTrends([mac, m2, m3, m4, m5]);
+  } catch (e) {
+    document.getElementById('err').textContent =
+      'Could not load results (' + e.message + '). Is deploy/viewer_server.py running?';
+  }
+})();
+</script>
+</body>
+</html>

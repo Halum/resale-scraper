@@ -1,0 +1,35 @@
+{
+  "min_price": 1,
+  "max_price": 20,
+  "watts": [
+    65,
+    67,
+    70,
+    100,
+    120,
+    140,
+    160
+  ],
+  "brands": [
+    "anker",
+    "ugreen",
+    "baseus"
+  ],
+  "keywords_kleinanzeigen": [
+    "charger",
+    "ladeger\u00e4t",
+    "netzteil"
+  ],
+  "keyword_vinted": "charger",
+  "kleinanzeigen": {
+    "pages": 10
+  },
+  "vinted": {
+    "pages": 5,
+    "brand_ids": {
+      "anker": 304174,
+      "ugreen": 427512,
+      "baseus": 369636
+    }
+  }
+}

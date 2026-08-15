@@ -1,0 +1,17 @@
+[Unit]
+Description=Deal hunter viewer (static file server)
+After=network.target
+
+[Service]
+WorkingDirectory=/opt/scraper
+ExecStart=/usr/bin/python3 /opt/scraper/deploy/viewer_server.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+
+# Install:
+#   cp deploy/scraper-viewer.service /etc/systemd/system/
+#   systemctl daemon-reload && systemctl enable --now scraper-viewer
+# Serves index.html (unified tabbed view) at http://<lxc-ip>:8000/

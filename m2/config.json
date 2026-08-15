@@ -1,0 +1,27 @@
+{
+  "notify": false,
+  "min_price": 1000,
+  "max_price": 3000,
+  "ram_targets": [
+    16,
+    32,
+    64,
+    96
+  ],
+  "chips": [
+    "m2",
+    "m2 pro",
+    "m2 max"
+  ],
+  "fallback_queries": [
+    "macbook pro m2",
+    "macbook m2"
+  ],
+  "kleinanzeigen": {
+    "cat": "",
+    "pages": 10
+  },
+  "vinted": {
+    "pages": 5
+  }
+}

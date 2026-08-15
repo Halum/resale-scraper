@@ -1,0 +1,25 @@
+{
+  "min_price": 5,
+  "max_price": 25,
+  "models": [
+    "ax1800",
+    "ax3000"
+  ],
+  "brands": [
+    "xiaomi",
+    "mi",
+    "redmi"
+  ],
+  "keywords_kleinanzeigen": [
+    "router",
+    "wlan"
+  ],
+  "keyword_vinted": "router",
+  "kleinanzeigen": {
+    "cat": "",
+    "pages": 10
+  },
+  "vinted": {
+    "pages": 5
+  }
+}

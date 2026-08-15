@@ -1,0 +1,20 @@
+{
+  "min_price": 100,
+  "max_price": 2000,
+  "screens": [
+    "11",
+    "12.9"
+  ],
+  "fallback_queries": [
+    "ipad pro m1",
+    "ipad pro 2021",
+    "ipad pro"
+  ],
+  "kleinanzeigen": {
+    "cat": "",
+    "pages": 10
+  },
+  "vinted": {
+    "pages": 5
+  }
+}

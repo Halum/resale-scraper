@@ -1,0 +1,21 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
+
+# runtime data, not source
+*.db
+*/skipped.json
+*/skipped_vinted.json
+*/combined_results.json
+*/combined_results.js
+logs/
+tmp/
+
+# secrets / browser session state
+common/cf_clearance.txt
+common/vinted_master_profile/
+.env
+
+# internal planning docs -- outage history, infra reasoning, not for public repo
+docs/superpowers/

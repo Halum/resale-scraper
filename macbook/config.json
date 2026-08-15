@@ -1,0 +1,37 @@
+{
+  "notify": false,
+  "min_price": 600,
+  "max_price": 1500,
+  "ram_targets": [
+    16,
+    32,
+    36,
+    48,
+    64
+  ],
+  "chips": [
+    "m1",
+    "m1 pro",
+    "m1 max",
+    "m2",
+    "m2 pro",
+    "m2 max",
+    "m3",
+    "m3 pro",
+    "m3 max",
+    "m4",
+    "m4 pro",
+    "m4 max"
+  ],
+  "fallback_queries": [
+    "macbook pro",
+    "macbook"
+  ],
+  "kleinanzeigen": {
+    "cat": "",
+    "pages": 10
+  },
+  "vinted": {
+    "pages": 5
+  }
+}
