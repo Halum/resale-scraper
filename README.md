@@ -41,6 +41,16 @@ Writes straight to `hunt.db` (SQLite) — no export/build step. Viewer reads liv
 - **`products/<product>/config.json`** — per-product tuning, see above.
 - **`global_config.json`** (repo root) — `{"kleinanzeigen": {"enabled": bool}, "vinted": {"enabled": bool}}`. Kills a platform everywhere at once (e.g. platform starts challenging requests), no cron/code touch needed. Checked by `common/skipflag.py`.
 
+## Notifications
+
+Telegram alerts route through one external n8n workflow ("Scraper Alert" — not tracked in this repo, id `tgJMeexLDiMG8cag`), which is a dumb `Webhook -> Telegram` pass-through: it forwards `{{ $json.body.text }}` verbatim to one hardcoded chat, no per-product filtering, no branching. All muting/routing logic lives in this repo, not in n8n:
+
+- `common/notify.py`'s `send_lines()` (and `notify_hits()`, which calls it) POST to `NOTIFY_WEBHOOK_URL` (n8n's webhook, set in `.env`).
+- Each `products/<product>/config.json` may set `"notify": false` to mute that product's hit alerts — checked in `common/kleinanzeigen_engine.py` / `common/vinted_engine.py` before calling `notify_hits()`, and in `common/check_sold.py` before the sold summary. Defaults to `true` when the key is absent.
+- `deploy/run_all.sh` / `run_all_vinted.sh` send a failure alert (product timed out or exited non-zero) regardless of the per-product `notify` flag — a silently-dead scrape should never be muted.
+
+If a product's alerts look wrong, check its `config.json`'s `notify` key first — n8n has no logic to inspect.
+
 ## Fetching
 
 Both platforms are fetched through [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) (`common/fetch.py`, endpoint from `FLARESOLVERR_URL`) rather than a local browser — Kleinanzeigen's fingerprint check and Vinted's Cloudflare challenge are both handled on FlareSolverr's side. The scraper host itself runs no Chrome/patchright. Listing cards, prices, and the sold/reserved badge are all parsed out of the returned static HTML with stdlib regex (`common/parse.py`) — see that file's tests for the exact markup each parser depends on.
