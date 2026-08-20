@@ -49,7 +49,8 @@
   tbody tr.today { background: rgba(255, 200, 0, 0.15); }
   tbody tr:hover { background: var(--chip-bg); }
   td { padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
-  td.price { font-weight: 700; white-space: nowrap; }
+  td.price { font-weight: 700; white-space: nowrap; cursor: text; }
+  .price-input { width: 5em; font: inherit; font-weight: 700; }
   td.spec { white-space: nowrap; }
   td.date { white-space: nowrap; color: #888; font-size: 0.85rem; }
   .chip {
@@ -307,7 +308,7 @@ function row(r, suffix, product, onHidden, onSold) {
   const today = new Date().toISOString().split('T')[0];
   if (firstSeen && firstSeen.split('T')[0] === today) tr.classList.add('today');
   tr.innerHTML = `
-    <td class="price">${price}€</td>
+    <td class="price"><span class="price-text">${price}€</span></td>
     <td class="spec">${spec ?? '?'}${suffix}</td>
     <td>${label ? `<span class="chip">${label}</span>` : '?'}</td>
     <td class="date">${firstSeen ? firstSeen.split('T')[0] : '?'}</td>
@@ -315,6 +316,40 @@ function row(r, suffix, product, onHidden, onSold) {
     <td class="date">${date ?? '?'}</td>
     <td><a class="title" href="${href}" target="_blank" rel="noopener">${title}</a></td>
     <td class="actions"><button class="sold-btn" type="button"${soldOf(r) ? ' disabled' : ''}>Sold</button> <button class="skip-btn" type="button">Skip</button></td>`;
+  const priceCell = tr.querySelector('.price');
+  priceCell.addEventListener('click', () => {
+    if (priceCell.querySelector('input')) return;
+    const span = priceCell.querySelector('.price-text');
+    const oldPrice = r[1];
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.value = oldPrice;
+    input.className = 'price-input';
+    priceCell.replaceChild(input, span);
+    input.focus();
+    input.select();
+    const finish = (commit) => {
+      const newPrice = parseInt(input.value, 10);
+      if (!commit || !Number.isFinite(newPrice) || newPrice === oldPrice) {
+        priceCell.replaceChild(span, input);
+        return;
+      }
+      span.textContent = `${newPrice}€`;
+      priceCell.replaceChild(span, input);
+      fetch('/api/price', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product, id, price: newPrice }),
+      })
+        .then(res => { if (!res.ok) throw new Error(res.status); r[1] = newPrice; })
+        .catch(() => { span.textContent = `${oldPrice}€`; });
+    };
+    input.addEventListener('blur', () => finish(true));
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') input.blur();
+      if (e.key === 'Escape') { input.value = oldPrice; input.blur(); }
+    });
+  });
   tr.querySelector('.skip-btn').addEventListener('click', (e) => {
     if (!confirm(`Skip "${title}"? This hides it permanently.`)) return;
     const btn = e.currentTarget;

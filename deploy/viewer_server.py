@@ -49,7 +49,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         super().do_GET()
 
     def do_POST(self):
-        if self.path not in ("/api/hide", "/api/sold"):
+        if self.path not in ("/api/hide", "/api/sold", "/api/price"):
             self.send_error(404)
             return
         length = int(self.headers.get("Content-Length", 0))
@@ -57,6 +57,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             data = json.loads(self.rfile.read(length))
             db_path = DBS[data["product"]]
             ad_id = str(data["id"])
+            if self.path == "/api/price":
+                price = int(data["price"])
         except (KeyError, ValueError, json.JSONDecodeError):
             self.send_error(400)
             return
@@ -64,6 +66,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         if self.path == "/api/hide":
             conn.execute("UPDATE ads SET bucket='hidden' WHERE id=?", (ad_id,))
             verb = "HIDE"
+        elif self.path == "/api/price":
+            conn.execute("UPDATE ads SET price=? WHERE id=?", (price, ad_id))
+            verb = f"PRICE={price}"
         else:
             set_meta(conn, ad_id, {"sold": True})
             verb = "SOLD"
