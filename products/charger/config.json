@@ -1,6 +1,6 @@
 {
   "min_price": 1,
-  "max_price": 20,
+  "max_price": 100,
   "watts": [
     65,
     67,
