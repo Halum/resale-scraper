@@ -1,4 +1,5 @@
 {
+  "notify": false,
   "min_price": 100,
   "max_price": 2000,
   "screens": [

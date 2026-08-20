@@ -21,14 +21,30 @@ PRODUCT_TIMEOUT="45m"
 # Jitter start time, same reasoning as run_all.sh.
 sleep $((RANDOM % 900))
 
+FAILURES=()
 {
   for product in macbook charger macbookm4 m2 m3 m5 router ipad; do
     echo "== $(date +%T) $product/vinted =="
     (cd "products/$product" && timeout -k 30 "$PRODUCT_TIMEOUT" uv run python vinted.py)
     rc=$?
-    [ $rc -eq 124 ] && echo "[$product] vinted TIMED OUT after $PRODUCT_TIMEOUT -- killed"
-    [ $rc -ne 0 ] && [ $rc -ne 124 ] && echo "[$product] vinted FAILED rc=$rc (see traceback above)"
+    if [ $rc -eq 124 ]; then
+      echo "[$product] vinted TIMED OUT after $PRODUCT_TIMEOUT -- killed"
+      FAILURES+=("$product: vinted timed out after $PRODUCT_TIMEOUT")
+    elif [ $rc -ne 0 ]; then
+      echo "[$product] vinted FAILED rc=$rc (see traceback above)"
+      FAILURES+=("$product: vinted failed rc=$rc")
+    fi
   done
 } >> "$LOG" 2>&1
+
+# Failures always alert regardless of per-product notify config -- a scrape
+# that silently stopped running is worse than a muted product's normal hits.
+if [ ${#FAILURES[@]} -gt 0 ]; then
+  uv run python -c "
+from common.notify import send_lines
+import sys
+send_lines(sys.argv[1:], header='<b>Vinted scrape failures:</b>')
+" "${FAILURES[@]}"
+fi
 
 echo "vinted run complete, log: $LOG"

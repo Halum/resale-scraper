@@ -27,14 +27,30 @@ PRODUCT_TIMEOUT="45m"
 # the actual start time so request timestamps vary day to day.
 sleep $((RANDOM % 1800))
 
+FAILURES=()
 {
   for product in macbook charger macbookm4 m2 m3 m5 router ipad; do
     echo "== $(date +%T) $product/kleinanzeigen =="
     (cd "products/$product" && timeout -k 30 "$PRODUCT_TIMEOUT" uv run python kleinanzeigen.py)
     rc=$?
-    [ $rc -eq 124 ] && echo "[$product] kleinanzeigen TIMED OUT after $PRODUCT_TIMEOUT -- killed"
-    [ $rc -ne 0 ] && [ $rc -ne 124 ] && echo "[$product] kleinanzeigen FAILED rc=$rc (see traceback above)"
+    if [ $rc -eq 124 ]; then
+      echo "[$product] kleinanzeigen TIMED OUT after $PRODUCT_TIMEOUT -- killed"
+      FAILURES+=("$product: kleinanzeigen timed out after $PRODUCT_TIMEOUT")
+    elif [ $rc -ne 0 ]; then
+      echo "[$product] kleinanzeigen FAILED rc=$rc (see traceback above)"
+      FAILURES+=("$product: kleinanzeigen failed rc=$rc")
+    fi
   done
 } >> "$LOG" 2>&1
+
+# Failures always alert regardless of per-product notify config -- a scrape
+# that silently stopped running is worse than a muted product's normal hits.
+if [ ${#FAILURES[@]} -gt 0 ]; then
+  uv run python -c "
+from common.notify import send_lines
+import sys
+send_lines(sys.argv[1:], header='<b>Scrape failures:</b>')
+" "${FAILURES[@]}"
+fi
 
 echo "run complete, log: $LOG"
