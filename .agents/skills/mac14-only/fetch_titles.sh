@@ -8,7 +8,7 @@ set -euo pipefail
 ssh scraper "cd /opt/scraper && python3 -c \"
 import sqlite3
 for p in ('macbook','macbookm4','m2','m3','m5'):
-    conn = sqlite3.connect(f'{p}/hunt.db')
+    conn = sqlite3.connect(f'products/{p}/hunt.db')
     rows = conn.execute(\\\"SELECT id, title FROM ads WHERE meta IS NULL OR json_extract(meta, '\$.screen_in') IS NULL\\\").fetchall()
     for i, t in rows:
         print(p, i, t)

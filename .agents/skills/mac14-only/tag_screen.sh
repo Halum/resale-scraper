@@ -10,7 +10,7 @@ set -euo pipefail
 product="$1"; shift
 pairs_py=$(printf "'%s'," "$@")
 
-ssh scraper "cd /opt/scraper/$product && python3 -c \"
+ssh scraper "cd /opt/scraper/products/$product && python3 -c \"
 import sqlite3, json
 pairs = [$pairs_py]
 conn = sqlite3.connect('hunt.db')
