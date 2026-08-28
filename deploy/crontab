@@ -5,12 +5,13 @@ PATH=/usr/local/bin:/usr/bin:/bin
 # disables per-job CRON_TZ, so the host's system timezone must BE
 # Europe/Berlin (set via `timedatectl set-timezone Europe/Berlin`).
 
-# Kleinanzeigen: 8am, 12pm, 4pm, 8pm, 11pm.
+# Kleinanzeigen: 8am, 12pm, 4pm, 8pm.
+# (No 11pm slot: its run + jitter lands in the home router's nightly
+# 23:30-23:40 downtime, wedging fetches until the watchdog kills the run.)
 0 8  * * * /opt/scraper/deploy/run_all.sh
 0 12 * * * /opt/scraper/deploy/run_all.sh
 0 16 * * * /opt/scraper/deploy/run_all.sh
 0 20 * * * /opt/scraper/deploy/run_all.sh
-0 23 * * * /opt/scraper/deploy/run_all.sh
 
 # Vinted: own lower-frequency schedule, offset from Kleinanzeigen's slots so
 # both platforms never fire in the same burst.
