@@ -1,0 +1,77 @@
+{
+  "name": "[resale-scraper] Scraper Alert",
+  "nodes": [
+    {
+      "id": "b1000000-0000-4000-8000-000000000001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-460, 100],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "scraper-alert",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "e13b736b-7c09-4eab-81c0-3b4ed6be6295"
+    },
+    {
+      "id": "c1000000-0000-4000-8000-000000000001",
+      "name": "Set Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [-340, 220],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c0000000-0000-0000-0000-000000000001",
+              "name": "TELEGRAM_CHAT_ID",
+              "value": "REPLACE_WITH_TELEGRAM_CHAT_ID",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      }
+    },
+    {
+      "id": "b1000000-0000-4000-8000-000000000002",
+      "name": "Telegram Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [-220, 100],
+      "parameters": {
+        "chatId": "={{ $('Set Config').item.json.TELEGRAM_CHAT_ID }}",
+        "text": "={{ $json.body.text }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "telegramApi": {
+          "id": "REPLACE_WITH_CREDENTIAL_ID",
+          "name": "Alert Bot"
+        }
+      },
+      "webhookId": "9f3f4260-f33f-4f12-a5d3-d22199be08d9"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{ "node": "Set Config", "type": "main", "index": 0 }]]
+    },
+    "Set Config": {
+      "main": [[{ "node": "Telegram Alert", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Berlin"
+  }
+}
