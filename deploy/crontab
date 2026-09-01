@@ -24,3 +24,7 @@ PATH=/usr/local/bin:/usr/bin:/bin
 # timeout: fetch_html() has its own socket timeout, this is the coarser
 # outer backstop for the whole sweep.
 0 6 * * * cd /opt/scraper && if [ -f .env ]; then set -a; . ./.env; set +a; fi && timeout -k 60 90m uv run python common/check_sold.py >> /var/log/scraper/check_sold-$(date +\%F).log 2>&1
+
+# Daily digest: New (found) + Sold per product, last 24h. 7am, after the 6am
+# sold-sweep and before the 8am scrape.
+0 7 * * * cd /opt/scraper && if [ -f .env ]; then set -a; . ./.env; set +a; fi && uv run python common/digest.py >> /var/log/scraper/digest-$(date +\%F).log 2>&1

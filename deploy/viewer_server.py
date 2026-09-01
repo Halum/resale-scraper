@@ -70,7 +70,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             conn.execute("UPDATE ads SET price=? WHERE id=?", (price, ad_id))
             verb = f"PRICE={price}"
         else:
-            set_meta(conn, ad_id, {"sold": True})
+            set_meta(conn, ad_id, {"sold": True,
+                                    "sold_at": datetime.datetime.now().isoformat(timespec="seconds")})
             verb = "SOLD"
         conn.commit()
         conn.close()
