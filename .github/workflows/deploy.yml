@@ -8,6 +8,13 @@ name: Deploy
 on:
   push:
     branches: [main]
+    # Docs and the n8n workflow mirror never affect what runs on the box, so a
+    # push touching ONLY these skips deploy (GitHub skips when every changed
+    # file matches). A push mixing these with real code still deploys.
+    paths-ignore:
+      - '**.md'
+      - 'n8n/**'
+      - 'docs/**'
 
 jobs:
   deploy:
