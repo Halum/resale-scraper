@@ -11,6 +11,11 @@ cd "$(dirname "$0")/.."
 # secret; optional so a host without it yet doesn't fail the whole batch.
 if [ -f .env ]; then set -a; . ./.env; set +a; fi
 
+# Reuse one warm FlareSolverr browser session across all product processes in
+# this run (see common/fetch.py). Distinct from klein's so the two platforms'
+# cookie state never mixes. Never destroyed here -- the janitor GCs it.
+export FLARESOLVERR_SESSION=vinted
+
 mkdir -p logs
 LOG="logs/run-vinted-$(date +%F-%H%M).log"
 

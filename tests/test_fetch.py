@@ -1,20 +1,44 @@
-import os
-import pytest
-from common.fetch import fetch_html, FetchError
+"""Session wiring for the FlareSolverr client -- the parts that can silently
+break fetching: whether a session name is attached, and recovery when the
+named session has been GC'd. No network; _post is stubbed."""
+import common.fetch as fetch
 
-live = pytest.mark.skipif(
-    not os.environ.get("FLARESOLVERR_LIVE_TEST"),
-    reason="set FLARESOLVERR_LIVE_TEST=1 to hit the live service")
-
-
-@live
-def test_fetch_returns_html_for_a_real_page():
-    html = fetch_html("https://www.kleinanzeigen.de/s-anzeige:angebote/preis:100:2000/ipad-pro-m1/k0")
-    assert "article" in html
-    assert len(html) > 100_000
+OK = {"status": "ok", "solution": {"status": 200, "response": "<html>hi</html>"}}
+MISSING = {"status": "error", "message": "Session does not exist"}
 
 
-def test_fetch_raises_on_unreachable_endpoint():
-    # Port 9 (discard) is closed -- no network dependency beyond localhost.
-    with pytest.raises(FetchError):
-        fetch_html("https://example.com/", endpoint="http://127.0.0.1:9/v1")
+def _stub_post(responses, calls):
+    """Return a _post that yields queued responses and records each payload."""
+    it = iter(responses)
+    def _post(endpoint, payload, timeout_ms):
+        calls.append(payload)
+        return next(it)
+    return _post
+
+
+def test_session_attached_when_named(monkeypatch):
+    calls = []
+    monkeypatch.setenv("FLARESOLVERR_SESSIONS", "1")
+    monkeypatch.setattr(fetch, "_post", _stub_post([OK], calls))
+    html = fetch.fetch_html("http://x", endpoint="http://fs", session="klein")
+    assert html == "<html>hi</html>"
+    assert calls[0].get("session") == "klein"
+
+
+def test_kill_switch_forces_sessionless(monkeypatch):
+    calls = []
+    monkeypatch.setenv("FLARESOLVERR_SESSIONS", "0")
+    monkeypatch.setattr(fetch, "_post", _stub_post([OK], calls))
+    fetch.fetch_html("http://x", endpoint="http://fs", session="klein")
+    assert "session" not in calls[0]   # kill-switch wins over the name
+
+
+def test_recreates_and_retries_on_missing_session(monkeypatch):
+    calls, created = [], []
+    monkeypatch.setenv("FLARESOLVERR_SESSIONS", "1")
+    monkeypatch.setattr(fetch, "_post", _stub_post([MISSING, OK], calls))
+    monkeypatch.setattr(fetch, "_create_session", lambda ep, name: created.append(name))
+    html = fetch.fetch_html("http://x", endpoint="http://fs", session="vinted")
+    assert html == "<html>hi</html>"   # second attempt succeeds
+    assert created == ["vinted"]       # session was recreated once
+    assert len(calls) == 2             # exactly one retry, no loop

@@ -10,6 +10,10 @@ cd "$(dirname "$0")/.."
 # secret; optional so a host without it yet doesn't fail the whole batch.
 if [ -f .env ]; then set -a; . ./.env; set +a; fi
 
+# Reuse one warm FlareSolverr browser session across all product processes in
+# this run (see common/fetch.py). Never destroyed here -- the janitor GCs it.
+export FLARESOLVERR_SESSION=klein
+
 mkdir -p logs
 LOG="logs/run-$(date +%F-%H%M).log"
 
