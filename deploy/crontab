@@ -26,7 +26,10 @@ PATH=/usr/local/bin:/usr/bin:/bin
 # perpetually-appended file never ages by mtime.
 # timeout: fetch_html() has its own socket timeout, this is the coarser
 # outer backstop for the whole sweep.
-0 6 * * * cd /opt/scraper && if [ -f .env ]; then set -a; . ./.env; set +a; fi && timeout -k 60 90m uv run python common/check_sold.py >> /var/log/scraper/check_sold-$(date +\%F).log 2>&1
+# FLARESOLVERR_SESSION=klein: reuse the warm klein browser session (see
+# common/fetch.py) so each detail fetch skips the cold Chrome launch (~13s->~2s).
+# No overlap with the klein scrape slots (8/12/16/20), so sharing the name is safe.
+0 6 * * * cd /opt/scraper && if [ -f .env ]; then set -a; . ./.env; set +a; fi && FLARESOLVERR_SESSION=klein timeout -k 60 90m uv run python common/check_sold.py >> /var/log/scraper/check_sold-$(date +\%F).log 2>&1
 
 # Daily digest: New (found) + Sold per product, last 24h. 7am, after the 6am
 # sold-sweep and before the 8am scrape.
