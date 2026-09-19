@@ -62,10 +62,17 @@ def _beat():
 def pace(kind="listing"):
     """Randomized delay, right-skewed (lognormal) with an occasional long
     'distraction' pause -- flat random.uniform() ranges are too regular to
-    look human over a long unattended run. Also beats the stall watchdog."""
+    look human over a long unattended run. Also beats the stall watchdog.
+
+    Distraction is detail-only. A listing run can be ~200 pages (macbook's
+    vinted combos: 12 chips x 5 RAM tiers), and at 10% x 30-90s that alone was
+    eating ~37% of the run's wall clock (measured: 14.85 of 40.35 min on a
+    clean run) -- the actual cause of its recurring 45m-timeout/watchdog kills,
+    not fetch time. Detail pages are far fewer per run, so the cost there stays
+    small while still varying the pacing shape."""
     _beat()
     median, sigma, cap = PACE_PROFILES[kind]
     time.sleep(min(random.lognormvariate(math.log(median), sigma), cap))
-    if random.random() < DISTRACTION_CHANCE:
+    if kind == "detail" and random.random() < DISTRACTION_CHANCE:
         time.sleep(random.uniform(*DISTRACTION_RANGE))
     _beat()  # again after sleeping, so the pause itself never counts as a stall
