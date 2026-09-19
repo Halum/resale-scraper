@@ -11,10 +11,12 @@ Sessions: FlareSolverr can keep a warm browser context alive between calls
 (sessions.create), which skips the per-request Chrome launch -- measured ~13s
 sessionless vs ~8.6s warm on a Vinted catalog page. We reuse one named session
 per platform (FLARESOLVERR_SESSION=klein|vinted, set by the run scripts), shared
-server-side across every product process in a run. We deliberately never
-destroy it: the flaresolverr-janitor sidecar GCs sessions older than 72h, and a
-named session is auto-recreated on demand -- so a janitor sweep, a FlareSolverr
-restart, or a deploy costs at most one cold fetch, never a hard failure. Set
+server-side across every product process in a run. We never destroy it on our
+own initiative (the flaresolverr-janitor sidecar GCs sessions older than 72h),
+only reactively when a fetch through it fails -- see fetch_html's docstring.
+A missing session is auto-recreated on demand, so a janitor sweep, a
+FlareSolverr restart, or a deploy costs at most one cold fetch, never a hard
+failure. Set
 FLARESOLVERR_SESSIONS=0 (e.g. in the ENV_FILE secret) to force sessionless
 without editing the run scripts.
 """
@@ -51,17 +53,21 @@ def _post(endpoint, payload, timeout_ms):
         return json.load(r)
 
 
-def _create_session(endpoint, name):
-    """Best-effort create; the following request.get retry surfaces any real
-    error. Harmless if the session already exists."""
+def _reset_session(endpoint, name):
+    """Best-effort destroy + recreate; the following request.get retry surfaces
+    any real error. destroy-then-create, not create alone: a session whose
+    browser tab crashed is still LISTED, so sessions.create on that name no-ops
+    without a prior destroy (reproduced live 2026-09-19: a crashed 'klein'
+    session returned instant HTTP 500 "tab crashed" for ~2h across two whole
+    scrape runs, since nothing ever cleared it)."""
+    try:
+        _post(endpoint, {"cmd": "sessions.destroy", "session": name}, 30000)
+    except _TRANSPORT_ERRORS:
+        pass
     try:
         _post(endpoint, {"cmd": "sessions.create", "session": name}, 30000)
     except _TRANSPORT_ERRORS:
         pass
-
-
-def _is_missing_session(body):
-    return "session" in (body.get("message") or "").lower()
 
 
 def fetch_html(url, *, timeout_ms=60000, endpoint=None, session=None):
@@ -73,9 +79,11 @@ def fetch_html(url, *, timeout_ms=60000, endpoint=None, session=None):
     and leaving a browser tab live on its side.
 
     When a session name is active (param, else FLARESOLVERR_SESSION env, unless
-    FLARESOLVERR_SESSIONS=0), the request reuses that warm browser context. If
-    the session has been GC'd or lost, we recreate it once and retry -- so the
-    caller never sees a spurious failure from a swept session.
+    FLARESOLVERR_SESSIONS=0), the request reuses that warm browser context. Any
+    FlareSolverr-level failure while a session is active (missing session,
+    crashed tab, any other session-scoped error) resets that session once and
+    retries -- so a bad session self-heals on the next fetch instead of failing
+    every request until the janitor's 72h sweep or a deploy.
     """
     endpoint = endpoint or ENDPOINT
     if not endpoint:
@@ -91,10 +99,12 @@ def fetch_html(url, *, timeout_ms=60000, endpoint=None, session=None):
     except _TRANSPORT_ERRORS as e:
         raise FetchError(f"{url}: transport failure: {e}") from e
 
-    # Session vanished (janitor sweep / FlareSolverr restart): recreate + retry
-    # once. Versions that auto-create on miss never hit this branch.
-    if sess and body.get("status") != "ok" and _is_missing_session(body):
-        _create_session(endpoint, sess)
+    # Any FlareSolverr-level failure while a named session is in play (missing,
+    # crashed tab, etc) resets that session and retries once. Not scoped to a
+    # particular error message -- see _reset_session's docstring for why a
+    # narrower "session missing" check let a crashed-tab failure go unrecovered.
+    if sess and body.get("status") != "ok":
+        _reset_session(endpoint, sess)
         try:
             body = _post(endpoint, payload, timeout_ms)
         except _TRANSPORT_ERRORS as e:
