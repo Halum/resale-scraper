@@ -70,20 +70,10 @@ def _reset_session(endpoint, name):
         pass
 
 
-def fetch_html(url, *, timeout_ms=60000, endpoint=None, session=None):
-    """Return the fully-rendered HTML for `url`, via FlareSolverr.
-
-    timeout_ms is FlareSolverr's own per-page budget. The socket timeout is
-    deliberately larger (timeout_ms + 30s) so the server's own timeout fires
-    first and returns a useful error, rather than us tearing down the socket
-    and leaving a browser tab live on its side.
-
-    When a session name is active (param, else FLARESOLVERR_SESSION env, unless
-    FLARESOLVERR_SESSIONS=0), the request reuses that warm browser context. Any
-    FlareSolverr-level failure while a session is active (missing session,
-    crashed tab, any other session-scoped error) resets that session once and
-    retries -- so a bad session self-heals on the next fetch instead of failing
-    every request until the janitor's 72h sweep or a deploy.
+def _fetch_solution(url, *, timeout_ms=60000, endpoint=None, session=None):
+    """Return FlareSolverr's `solution` dict (`url`, `status`, `response`) for
+    `url`. `fetch_html` and `fetch_html_followed` both wrap this -- see
+    `fetch_html`'s docstring for the timeout and session-recovery behavior.
     """
     endpoint = endpoint or ENDPOINT
     if not endpoint:
@@ -119,4 +109,34 @@ def fetch_html(url, *, timeout_ms=60000, endpoint=None, session=None):
     html = solution.get("response") or ""
     if not html:
         raise FetchError(f"{url}: empty response body")
-    return html
+    return solution
+
+
+def fetch_html(url, *, timeout_ms=60000, endpoint=None, session=None):
+    """Return the fully-rendered HTML for `url`, via FlareSolverr.
+
+    timeout_ms is FlareSolverr's own per-page budget. The socket timeout is
+    deliberately larger (timeout_ms + 30s) so the server's own timeout fires
+    first and returns a useful error, rather than us tearing down the socket
+    and leaving a browser tab live on its side.
+
+    When a session name is active (param, else FLARESOLVERR_SESSION env, unless
+    FLARESOLVERR_SESSIONS=0), the request reuses that warm browser context. Any
+    FlareSolverr-level failure while a session is active (missing session,
+    crashed tab, any other session-scoped error) resets that session once and
+    retries -- so a bad session self-heals on the next fetch instead of failing
+    every request until the janitor's 72h sweep or a deploy.
+    """
+    return _fetch_solution(url, timeout_ms=timeout_ms, endpoint=endpoint, session=session)["response"]
+
+
+def fetch_html_followed(url, *, timeout_ms=60000, endpoint=None, session=None):
+    """Like `fetch_html`, but also return the final URL FlareSolverr landed on.
+
+    Kleinanzeigen answers a deleted/sold-and-removed ad with HTTP 200 on a
+    redirect to its category search page, not a 404 or an in-page badge -- so
+    a caller that only gets the HTML back has no way to notice the redirect
+    happened (see common/check_sold.py's is_sold_from_html, which compares
+    this against the requested URL to catch that case)."""
+    solution = _fetch_solution(url, timeout_ms=timeout_ms, endpoint=endpoint, session=session)
+    return solution["response"], solution["url"]

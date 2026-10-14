@@ -13,7 +13,7 @@ import datetime, json, os, pathlib, sqlite3, sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent))
 from common.browser import pace
-from common.fetch import fetch_html, FetchError
+from common.fetch import fetch_html_followed, FetchError
 from common.parse import is_sold_html
 from common.notify import _esc, send_lines
 from common.store import set_meta
@@ -29,12 +29,27 @@ def is_sold_from_html(href):
     is true only of a naive substring search for the words. The `is-hidden`
     class IS in the markup, so the distinction is static.
 
+    But most real sales never hit that badge: the seller deletes the ad
+    outright, and Kleinanzeigen answers with HTTP 200 on a redirect to the
+    ad's category search page (e.g. /s-notebooks/.../c278l12490), not a 404
+    or an in-page marker. Found live 2026-10-13: five days straight of "0 sold
+    of 400 checked" despite the backlog growing, because every deleted ad hit
+    is_sold_html's "no badge span found" ValueError and got silently reported
+    as still-live. So a page FlareSolverr lands on that isn't an ad-detail URL
+    at all counts as sold/removed before we even look for the badge.
+
     Every failure path returns False. Reporting "not sold" leaves an ad
     visible, which is recoverable on the next sweep; reporting "sold" hides it
     from the viewer, which the user may never notice."""
     try:
-        return is_sold_html(fetch_html(href, timeout_ms=30000))
-    except (FetchError, ValueError):
+        html, final_url = fetch_html_followed(href, timeout_ms=30000)
+    except FetchError:
+        return False
+    if "/s-anzeige/" not in final_url:
+        return True
+    try:
+        return is_sold_html(html)
+    except ValueError:
         return False
 
 

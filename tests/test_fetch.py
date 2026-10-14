@@ -4,6 +4,8 @@ named session is broken. No network; _post is stubbed."""
 import common.fetch as fetch
 
 OK = {"status": "ok", "solution": {"status": 200, "response": "<html>hi</html>"}}
+REDIRECTED = {"status": "ok", "solution": {
+    "status": 200, "response": "<html>hi</html>", "url": "http://elsewhere"}}
 MISSING = {"status": "error", "message": "Session does not exist"}
 # Real payload seen live 2026-09-19: a crashed browser tab inside an existing,
 # still-listed session. Doesn't mention "session" at all -- the bug that let a
@@ -60,6 +62,14 @@ def test_resets_and_retries_on_crashed_tab(monkeypatch):
     assert html == "<html>hi</html>"
     assert reset == ["klein"]
     assert len(calls) == 2
+
+
+def test_fetch_html_followed_returns_final_url(monkeypatch):
+    calls = []
+    monkeypatch.setattr(fetch, "_post", _stub_post([REDIRECTED], calls))
+    html, final_url = fetch.fetch_html_followed("http://x", endpoint="http://fs")
+    assert html == "<html>hi</html>"
+    assert final_url == "http://elsewhere"
 
 
 def test_reset_session_destroys_before_recreating(monkeypatch):
