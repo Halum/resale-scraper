@@ -6,6 +6,8 @@ name: Deploy
 # it. Only pushes to main (which only trusted collaborators can do) fire
 # this.
 on:
+  # Manual "Run workflow" button (needs write access, so no new exposure).
+  workflow_dispatch:
   push:
     branches: [main]
     # Docs and the n8n workflow mirror never affect what runs on the box, so a
