@@ -80,3 +80,13 @@ def test_reset_session_destroys_before_recreating(monkeypatch):
     fetch._reset_session("http://fs", "klein")
     assert calls[0] == {"cmd": "sessions.destroy", "session": "klein"}
     assert calls[1] == {"cmd": "sessions.create", "session": "klein"}
+
+
+def test_post_returns_json_body_of_http_500(monkeypatch):
+    """FlareSolverr signals errors as HTTP 500 + JSON; _post must return the
+    body (status 'error') instead of raising, or the session reset never runs."""
+    import io, urllib.error
+    def _urlopen(req, timeout):
+        raise urllib.error.HTTPError("http://fs", 500, "err", {}, io.BytesIO(b'{"status": "error", "message": "tab crashed"}'))
+    monkeypatch.setattr(fetch.urllib.request, "urlopen", _urlopen)
+    assert fetch._post("http://fs", {"cmd": "request.get"}, 1000)["message"] == "tab crashed"

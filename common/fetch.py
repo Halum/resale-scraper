@@ -49,8 +49,15 @@ def _post(endpoint, payload, timeout_ms):
         headers={"Content-Type": "application/json"})
     # socket timeout deliberately larger than FlareSolverr's own page budget so
     # the server times out first and returns a useful error (see fetch_html).
-    with urllib.request.urlopen(req, timeout=(timeout_ms / 1000) + 30) as r:
-        return json.load(r)
+    try:
+        with urllib.request.urlopen(req, timeout=(timeout_ms / 1000) + 30) as r:
+            return json.load(r)
+    except urllib.error.HTTPError as e:
+        # FlareSolverr reports errors (crashed tab, missing session, ...) as
+        # HTTP 500 with a JSON body. Return that body so the caller sees
+        # status != "ok" and resets the session; raising here skipped the reset
+        # and a crashed 'klein' session failed every fetch (found 2026-10-17).
+        return json.load(e)
 
 
 def _reset_session(endpoint, name):
