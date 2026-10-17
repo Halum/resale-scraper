@@ -22,11 +22,11 @@ def test_live_ad_page_falls_back_to_badge_check(monkeypatch):
     assert cs.is_sold_from_html(KL) is False
 
 
-def test_fetch_error_reports_not_sold(monkeypatch):
+def test_fetch_error_reports_none(monkeypatch):
     def _raise(href, **k):
         raise FetchError("boom")
     monkeypatch.setattr(cs, "fetch_html_followed", _raise)
-    assert cs.is_sold_from_html(KL) is False
+    assert cs.is_sold_from_html(KL) is None
 
 
 def _mkdb(path, rows):
@@ -80,3 +80,10 @@ def test_not_sold_writes_only_checked_at(tmp_path, monkeypatch):
     cs.main()
     m = _meta(db, "a")
     assert m.get("checked_at") and "sold" not in m and "sold_at" not in m
+
+
+def test_fetch_failure_leaves_ad_unchecked_for_retry(tmp_path, monkeypatch):
+    db = _setup(tmp_path, monkeypatch, sold_result=None)
+    cs.main()
+    assert _meta(db, "a") is None                                     # never-checked stays so
+    assert _meta(db, "b") == {"checked_at": "2020-01-01T00:00:00"}   # old stamp kept

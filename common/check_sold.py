@@ -38,13 +38,16 @@ def is_sold_from_html(href):
     as still-live. So a page FlareSolverr lands on that isn't an ad-detail URL
     at all counts as sold/removed before we even look for the badge.
 
-    Every failure path returns False. Reporting "not sold" leaves an ad
+    Returns None when the fetch itself failed (FlareSolverr down, crashed
+    session, timeout): main() then leaves checked_at untouched so the ad is
+    retried next run instead of waiting out a whole ~14-day cycle. A parse
+    failure on a real ad page returns False. Reporting "not sold" leaves an ad
     visible, which is recoverable on the next sweep; reporting "sold" hides it
     from the viewer, which the user may never notice."""
     try:
         html, final_url = fetch_html_followed(href, timeout_ms=30000)
     except FetchError:
-        return False
+        return None
     if "/s-anzeige/" not in final_url:
         return True
     try:
@@ -85,11 +88,16 @@ def main():
     cands.sort(key=lambda c: c[0])
     batch = cands[:cap]
 
-    sold = []
+    sold, failed = [], 0
     now = datetime.datetime.now().isoformat(timespec="seconds")
     for checked_at, product, id_, price, spec_num, spec_label, title, href in batch:
         conn = conns[product]
-        if is_sold_from_html(href):
+        result = is_sold_from_html(href)
+        if result is None:
+            failed += 1
+            pace("detail")
+            continue
+        if result:
             # sold_at drives the daily digest's Sold count -- without it a marked
             # ad is invisible to digest.py.
             set_meta(conn, id_, {"sold": True, "sold_at": now, "checked_at": now})
@@ -107,7 +115,7 @@ def main():
         c.commit()
         c.close()
 
-    log.info(f"{len(sold)} sold of {len(batch)} checked ({len(cands)} unsold total)")
+    log.info(f"{len(sold)} sold of {len(batch)} checked, {failed} fetch failures ({len(cands)} unsold total)")
     lines = [
         f'{product} · {price}€ · {spec_num}{spec_label or ""} · <a href="{href}">{_esc(title)}</a>'
         for product, price, spec_num, spec_label, title, href in sold
