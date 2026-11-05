@@ -9,10 +9,11 @@ skips it).
 import datetime, http.server, json, pathlib, sqlite3, sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
-from common.store import rows_by_bucket, set_meta
+from common.store import db, rows_by_bucket, set_meta
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DBS = {
+    "robotvac": ROOT / "products" / "robotvac" / "hunt.db",
     "macbook": ROOT / "products" / "macbook" / "hunt.db",
     "charger": ROOT / "products" / "charger" / "hunt.db",
     "macbookm4": ROOT / "products" / "macbookm4" / "hunt.db",
@@ -34,11 +35,10 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             if product not in DBS:
                 self.send_error(404)
                 return
-            conn = sqlite3.connect(DBS[product])
-            try:
+            # db() creates the schema, so a product that has not run yet
+            # (no hunt.db) serves empty rows instead of a 500.
+            with db(DBS[product]) as conn:
                 rows = rows_by_bucket(conn)
-            finally:
-                conn.close()
             body = json.dumps(rows, ensure_ascii=False).encode()
             self.send_response(200)
             self.send_header("Content-Type", "application/json")

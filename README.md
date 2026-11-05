@@ -1,10 +1,10 @@
 # Resale Scraper
 
-Scrapes Kleinanzeigen + Vinted for underpriced Apple Silicon MacBooks (M1-M5, all tiers) + USB-C GaN chargers (Anker/Ugreen/Baseus) + Xiaomi/Mi/Redmi routers (AX1800/AX3000). Hits stored in per-product SQLite DB. Single static HTML page serves it, sortable/filterable tables + price-trend chart.
+Scrapes Kleinanzeigen + Vinted for underpriced Apple Silicon MacBooks (M1-M5, all tiers) + USB-C GaN chargers (Anker/Ugreen/Baseus) + Xiaomi/Mi/Redmi routers (AX1800/AX3000) + Roborock/Dreame/Xiaomi lidar robot vacuums. Hits stored in per-product SQLite DB. Single static HTML page serves it, sortable/filterable tables + price-trend chart.
 
 ## How it works
 
-Each **product** (`products/macbook/`, `products/macbookm4/`, `products/m2/`, `products/m3/`, `products/m5/`, `products/charger/`, `products/router/`, `products/ipad/`) = folder with:
+Each **product** (`products/macbook/`, `products/macbookm4/`, `products/m2/`, `products/m3/`, `products/m5/`, `products/charger/`, `products/router/`, `products/robotvac/`, `products/ipad/`) = folder with:
 
 - `config.json` — price range, RAM/wattage targets, chip/brand list, fallback queries, per-platform search params.
 - `spec.py` — only product-specific logic. `classify(ad) -> (verdict, spec_num, spec_label, reason)` + `combos() -> [search queries]` for Kleinanzeigen. Vinted's own search wants every query word to roughly match the title, so a keyword that's fine for Kleinanzeigen (e.g. "router") can silently miss listings titled differently ("mesh system", or the same word in another language). Every product except the MacBook family defines a separate, usually narrower `combos_vinted()` (see `products/charger/spec.py`, `products/router/spec.py`) passed to `vinted.py` instead of the Kleinanzeigen `combos`.
