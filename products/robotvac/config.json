@@ -1,11 +1,49 @@
 {
-  "notify": false,
+  "notify": true,
   "min_price": 15,
   "max_price": 60,
   "brands": {
-    "Roborock": ["S6 MaxV", "S7", "S7 MaxV", "S8", "Q5", "Q5+", "Q5 Pro", "Q7", "Q7+", "Q7 Max", "Q7 Max+", "Q8 Max"],
-    "Dreame": ["D10", "D10 Plus", "D10s", "D10s Plus", "D10s Pro", "L10 Pro", "L10 Ultra", "L10s", "L10s Ultra", "Z10 Pro", "L20"],
-    "Xiaomi": ["S10", "S10+", "S10 Plus", "S12", "S20", "S20+", "X10", "X10+", "Mop 2 Pro", "Mop 2 Ultra", "Mop P", "Mop Pro"]
+    "Roborock": [
+      "S6 MaxV",
+      "S7",
+      "S7 MaxV",
+      "S8",
+      "Q5",
+      "Q5+",
+      "Q5 Pro",
+      "Q7",
+      "Q7+",
+      "Q7 Max",
+      "Q7 Max+",
+      "Q8 Max"
+    ],
+    "Dreame": [
+      "D10",
+      "D10 Plus",
+      "D10s",
+      "D10s Plus",
+      "D10s Pro",
+      "L10 Pro",
+      "L10 Ultra",
+      "L10s",
+      "L10s Ultra",
+      "Z10 Pro",
+      "L20"
+    ],
+    "Xiaomi": [
+      "S10",
+      "S10+",
+      "S10 Plus",
+      "S12",
+      "S20",
+      "S20+",
+      "X10",
+      "X10+",
+      "Mop 2 Pro",
+      "Mop 2 Ultra",
+      "Mop P",
+      "Mop Pro"
+    ]
   },
   "queries": [
     "roborock saugroboter",
@@ -19,7 +57,12 @@
   },
   "vinted": {
     "pages": 5,
-    "queries": ["roborock", "dreame", "xiaomi robot", "mi robot"],
+    "queries": [
+      "roborock",
+      "dreame",
+      "xiaomi robot",
+      "mi robot"
+    ],
     "brand_ids": {}
   }
 }
