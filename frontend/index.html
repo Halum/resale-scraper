@@ -102,6 +102,7 @@
   <div class="tab" data-tab="m5">M5 Floor</div>
   <div class="tab" data-tab="charger">Charger</div>
   <div class="tab" data-tab="router">Router</div>
+  <div class="tab" data-tab="robotvac">Robot vac</div>
   <div class="tab" data-tab="ipad">iPad Pro M1</div>
   <div class="tab" data-tab="trends">Trends</div>
 </div>
@@ -216,6 +217,22 @@
     <th></th>
   </tr></thead><tbody></tbody></table>
   <div class="pager" id="router-match-pager"></div>
+</div>
+
+<div class="panel" id="panel-robotvac">
+  <div class="subtitle">Roborock/Dreame/Xiaomi lidar, 15-60€</div>
+  <h2>Match</h2>
+  <table id="robotvac-match" data-spec-suffix=""><thead><tr>
+    <th data-col="1" data-type="num">Price</th>
+    <th data-col="2" data-type="str">Model</th>
+    <th data-col="3" data-type="str">Brand</th>
+    <th data-col="7" data-type="str">Added</th>
+    <th data-col="8" data-type="str">Platform</th>
+    <th data-col="6" data-type="date">Posted</th>
+    <th data-col="4" data-type="str">Listing</th>
+    <th></th>
+  </tr></thead><tbody></tbody></table>
+  <div class="pager" id="robotvac-match-pager"></div>
 </div>
 
 <div class="panel" id="panel-ipad">
@@ -484,7 +501,7 @@ function renderPaged(tableId, pagerId, rows, product, tabName) {
   const labels = [...new Set(rows.map(r => r[3] ?? '?'))].sort();
   toggleBar(labels, hidden, cookieName);
 
-  const ramLabels = [...new Set(rows.map(r => r[2] ?? '?'))].sort((a, b) => Number(a) - Number(b));
+  const ramLabels = [...new Set(rows.map(r => r[2] ?? '?'))].sort((a, b) => (isNaN(a) || isNaN(b)) ? String(a).localeCompare(String(b)) : Number(a) - Number(b));
   toggleBar(ramLabels, ramHidden, ramCookieName);
 
   const isMac = MAC_PRODUCTS.has(product);
@@ -758,8 +775,8 @@ async function loadResults(product) {
 
 (async () => {
   try {
-    const [mac, m2, m3, m4, m5, charger, router, ipad] = await Promise.all(
-      ['macbook', 'm2', 'm3', 'macbookm4', 'm5', 'charger', 'router', 'ipad'].map(loadResults));
+    const [mac, m2, m3, m4, m5, charger, router, ipad, robotvac] = await Promise.all(
+      ['macbook', 'm2', 'm3', 'macbookm4', 'm5', 'charger', 'router', 'ipad', 'robotvac'].map(loadResults));
     renderPaged('mac-match', 'mac-match-pager', mac.match, 'macbook', 'mac');
     renderPaged('m2-match', 'm2-match-pager', m2.match, 'm2', 'm2');
     renderPaged('m3-match', 'm3-match-pager', m3.match, 'm3', 'm3');
@@ -767,6 +784,7 @@ async function loadResults(product) {
     renderPaged('m5-match', 'm5-match-pager', m5.match, 'm5', 'm5');
     renderPaged('charger-match', 'charger-match-pager', charger.match, 'charger', 'charger');
     renderPaged('router-match', 'router-match-pager', router.match, 'router', 'router');
+    renderPaged('robotvac-match', 'robotvac-match-pager', robotvac.match, 'robotvac', 'robotvac');
     renderPaged('ipad-match', 'ipad-match-pager', ipad.match, 'ipad', 'ipad');
     renderTrends([mac, m2, m3, m4, m5]);
   } catch (e) {

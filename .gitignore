@@ -19,3 +19,6 @@ common/vinted_master_profile/
 
 # internal planning docs -- outage history, infra reasoning, not for public repo
 docs/superpowers/
+
+# git worktrees
+.worktrees/

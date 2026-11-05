@@ -117,7 +117,7 @@ def main():
 
     log.info(f"{len(sold)} sold of {len(batch)} checked, {failed} fetch failures ({len(cands)} unsold total)")
     lines = [
-        f'{product} · {price}€ · {spec_num}{spec_label or ""} · <a href="{href}">{_esc(title)}</a>'
+        f'{product} · {price}€ · {spec_num} {spec_label or ""} · <a href="{href}">{_esc(title)}</a>'
         for product, price, spec_num, spec_label, title, href in sold
         if notify.get(product, True)
     ]

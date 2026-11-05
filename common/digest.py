@@ -15,7 +15,8 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 # Display order + labels, mirrors the viewer's product tabs.
 PRODUCTS = [("macbook", "MacBook"), ("macbookm4", "M4"), ("m5", "M5"),
             ("m2", "M2"), ("m3", "M3"), ("ipad", "iPad"),
-            ("charger", "Charger"), ("router", "Router")]
+            ("charger", "Charger"), ("router", "Router"),
+            ("robotvac", "RobotVac")]
 
 
 def counts(db, cutoff):
