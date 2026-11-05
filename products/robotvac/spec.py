@@ -42,12 +42,13 @@ MODELS = {b: sorted(((m, _model_re(m)) for m in ms), key=lambda x: -len(x[0]))
 EXCLUDED = re.compile(
     r"(?<!\w)(d9|s5|s50|s55|s6|e4|e5|e10|e12|t12|1s|lefant)(?!\w)", re.I)
 
-BAD = re.compile(r"\b(suche|gesucht|ankauf|kaufe|tausch|defekt|kaputt|ersatzteil\w*|bastler|mainboard)\b", re.I)
+BAD = re.compile(r"\b(suche|gesucht|ankauf|kaufe|tausch|defekt|kaputt|ersatzteil\w*|bastler|mainboard|fehler)\b", re.I)
 
 # An accessory word anywhere skips, unless it directly follows mit/inkl/und/+/plus.
 _ACC = (r"\w*b[üu]rste\w*|filter\w*|\w*mopp\w*|wischmop\w*|wischt[üu]cher|\w*beutel\w*|akku\w*|batterie\w*|"
-        r"absaugstation|ladestation|basisstation|dock|wassertank|lds|laser|netzteil|sensor\w*|"
-        r"geh[äa]use|zubeh[öo]r\w*|pads?")
+        r"dock|wassertank|lds|laser|netzteil|sensor\w*|"
+        r"geh[äa]use|zubeh[öo]r\w*|pads?|\w*station|folie\w*|bumper|\w*aufs[äa]tz\w*|accessor\w*|kit|"
+        r"ladeger[äa]t\w*|\w*beh[äa]lter\w*")
 ACC = re.compile(rf"(?<!\w)(?:{_ACC})(?!\w)", re.I)
 ACC_OK_BEFORE = re.compile(r"(?:\bmit|\binkl\.?|\bund|\bplus|\+)\s*$", re.I)
 Q7_M5 = re.compile(r"(?<!\w)q7\s*m5(?!\w)", re.I)

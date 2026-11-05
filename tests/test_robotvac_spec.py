@@ -12,6 +12,12 @@ def c(title):
 
 
 HITS = [
+    # real hits from the 2026-11-06 live trial run
+    ("Dreame D10 Plus Saugroboter mit Absaugstation", "D10 Plus", "Dreame"),
+    ("Dreame Saugroboter L10s Ultra  mit Absaugstation", "L10s Ultra", "Dreame"),
+    ("roborock s7 Wisch  und Saugroboter inkl. Ladestation", "S7", "Roborock"),
+    ("Mi Robot Vacuum-Mop 2 Ultra  Roboter-Staubsauger", "Mop 2 Ultra", "Xiaomi"),
+    ("Xiaomi Mop Pro Saugroboter mit Zubehör", "Mop Pro", "Xiaomi"),
     ("Roborock S7 Saugroboter mit Wischfunktion", "S7", "Roborock"),
     ("Roborock S7 MaxV Ultra Saugroboter", "S7 MaxV", "Roborock"),
     ("Roborock S6 MaxV Saugroboter", "S6 MaxV", "Roborock"),
@@ -55,6 +61,16 @@ SKIPS = [
     ("Ladestation Roborock Q7 Max", None, None, "accessory"),
     ("Filter Set kompatibel Xiaomi S10", None, None, "accessory"),
     ("Roborock S7 Ladestation", None, None, "accessory"),
+    # misjudged in the 2026-11-06 live trial run
+    ("Roborock Vaccum Accessories Kit f S7 & S8 Saugroboter - VibraRise", None, None, "accessory"),
+    ("BROTECT HD-Clear Folie für Saugroboter Roborock S7 maxV", None, None, "accessory"),
+    ("2 Wisch-Aufsätze für Saugroboter Roborock S8", None, None, "accessory"),
+    ("Saugroboter Roborock S8 Bumper 8 mm tiefer", None, None, "accessory"),
+    ("Mi Robot Vacuum Mop 2 Ultra Station", None, None, "accessory"),
+    ("Xiaomi Mi Robot Vacuum-Mop 2 Ultra Auto-Empty Station", None, None, "accessory"),
+    ("Xiaomi Mi Robot Vacuum-Mop 2 Ultra – Auto-Empty Station", None, None, "accessory"),
+    ("Mi Robot Vacuum-Mop P Ladegerät und Wasser, Auffangbehälter", None, None, "accessory"),
+    ("roborock S7 Saugroboter mit Fehler", None, None, "bad_title"),
     ("Roborock S7 Dock", None, None, "accessory"),
     ("Roborock S7 Wassertank", None, None, "accessory"),
     ("Roborock S7 Seitenbürste", None, None, "accessory"),
