@@ -10,5 +10,6 @@ def test_results_missing_db_returns_empty(tmp_path, monkeypatch):
         r = urllib.request.urlopen(f"http://127.0.0.1:{srv.server_port}/api/results/ghost")
         assert r.status == 200
         assert json.loads(r.read()) == {"match": [], "maybe": []}
+        assert not (tmp_path / "hunt.db").exists()   # viewer runs as root: never create a db
     finally:
         srv.shutdown()

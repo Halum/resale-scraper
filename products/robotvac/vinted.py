@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Vinted robot vacuum hunter. Same classify() as kleinanzeigen.py, own
-combos_vinted() (spec.py). Scrape loop is common/vinted_engine.py.
+"""Vinted robot vacuum hunter. classify_vinted()/combos_vinted() from
+spec.py. Scrape loop is common/vinted_engine.py.
 
 Run:  uv run python vinted.py [--all] [--test]
 """
@@ -14,4 +14,4 @@ HERE = pathlib.Path(__file__).parent
 
 if __name__ == "__main__":
     run(here=HERE, cfg=spec.CFG, min_price=spec.MIN_PRICE, max_price=spec.MAX_PRICE,
-        classify=spec.classify, combos=spec.combos_vinted, extra_qs=spec.VINTED_EXTRA_QS, spec_suffix="")
+        classify=spec.classify_vinted, combos=spec.combos_vinted, extra_qs=spec.VINTED_EXTRA_QS, spec_suffix="")

@@ -25,6 +25,12 @@ HITS = [
     ("Roborock S7 mit Ladestation", "S7", "Roborock"),
     ("Xiaomi Roborock S7", "S7", "Roborock"),
     ("Roborock S7 inkl. Zubehör", "S7", "Roborock"),
+    ("Roborock S7 inkl. Absaugstation", "S7", "Roborock"),
+    ("Roborock S7 + Zubehör", "S7", "Roborock"),
+    ("Dreame L10 Ultra Saugroboter", "L10 Ultra", "Dreame"),
+    ("Roborock Q5 Pro Saugroboter", "Q5 Pro", "Roborock"),
+    ("Xiaomi Robot Vacuum S10 Plus", "S10 Plus", "Xiaomi"),
+    ("Mijia Mop 2 Pro Saugroboter", "Mop 2 Pro", "Xiaomi"),
     ("Dreame L10 Pro inkl. Zubehör", "L10 Pro", "Dreame"),
     ("Dreame L10s Ultra Saugroboter", "L10s Ultra", "Dreame"),
     ("Dreame L10s Saugroboter", "L10s", "Dreame"),
@@ -48,6 +54,21 @@ SKIPS = [
     ("Seitenbürsten für Dreame L10s", None, None, "accessory"),
     ("Ladestation Roborock Q7 Max", None, None, "accessory"),
     ("Filter Set kompatibel Xiaomi S10", None, None, "accessory"),
+    ("Roborock S7 Ladestation", None, None, "accessory"),
+    ("Roborock S7 Dock", None, None, "accessory"),
+    ("Roborock S7 Wassertank", None, None, "accessory"),
+    ("Roborock S7 Seitenbürste", None, None, "accessory"),
+    ("Roborock S7 Zubehör Set", None, None, "accessory"),
+    ("Roborock S7 Netzteil", None, None, "accessory"),
+    ("Roborock S7 LDS Sensor", None, None, "accessory"),
+    ("Roborock Dock für S7", None, None, "accessory"),
+    ("Roborock S7 Saugroboter Ladestation", None, None, "accessory"),
+    ("Staubbeutel für Roborock S7", None, None, "accessory"),
+    ("Wischmopp für Dreame L10s", None, None, "accessory"),
+    ("Zubehörset für Roborock Q7 Max", None, None, "accessory"),
+    ("Roborock S7 Ersatzteile", None, None, "bad_title"),
+    ("Roborock S7 Ersatzteilspender", None, None, "bad_title"),
+    ("Roborock Q7 M5 Saugroboter", None, "Roborock", "excluded_model"),
     ("Dreame D9 Pro", None, "Dreame", "excluded_model"),
     ("Roborock S5 Max", None, "Roborock", "excluded_model"),
     ("Roborock S5 Max mit Ladestation", None, "Roborock", "excluded_model"),
@@ -77,7 +98,23 @@ def test_combos():
 
 
 def test_combos_vinted():
-    assert spec.combos_vinted() == spec.combos()
+    assert spec.combos_vinted() == ["roborock", "dreame", "xiaomi robot", "mi robot"]
+
+
+def test_classify_vinted_brand_from_card_text():
+    ad = {"title": "Saugroboter S7", "text": "Saugroboter S7, marke: Roborock, zustand: gut, 40,00 €"}
+    assert spec.classify_vinted(ad) == ("hit", "S7", "Roborock", None)
+    assert spec.classify({"title": ad["title"]})[3] == "no_brand"
+
+
+def test_classify_vinted_no_marke_stays_no_brand():
+    ad = {"title": "Saugroboter S7", "text": "Saugroboter S7, zustand: gut, 40,00 €"}
+    assert spec.classify_vinted(ad)[3] == "no_brand"
+
+
+def test_classify_vinted_title_brand_unchanged():
+    ad = {"title": "Dreame L10s", "text": "Dreame L10s, marke: Dreame, 40,00 €"}
+    assert spec.classify_vinted(ad) == ("hit", "L10s", "Dreame", None)
 
 
 def test_vinted_extra_qs_empty_without_brand_ids():
