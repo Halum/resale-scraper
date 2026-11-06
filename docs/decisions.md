@@ -7,6 +7,6 @@
 - Working units only: defekt/Bastler/Ersatzteil/wanted ads skip, and an accessory word anywhere in the title skips the listing unless it follows mit/inkl/und/+/plus.
 - Search by brand, not by model: Kleinanzeigen queries `<brand> saugroboter`, Vinted bare brand queries (Vinted wants every query word in the title). `classify_vinted` falls back to the card's `marke:` text when the title has no brand. No Vinted brand ids yet.
 - robotvac runs first in both run loops, so the fastest-selling target is fetched first.
-- Alerts start only after the first server run has recorded the existing listings (agent-made, 2026-11-06): the 2026-11-06 trial found 56 in-window hits, which Telegram's 4096-character limit would split into several messages. The existing listings are in the viewer tab.
+- Alerts are on since the first server run recorded the existing listings on 2026-11-06 (agent-made, 2026-11-06), so only listings that appear after that run are sent. Turning alerts on before that run would have sent the whole backlog, which Telegram's 4096-character limit splits into several messages.
 - The viewer returns empty rows for a product whose `hunt.db` does not exist yet and never creates the file (the viewer runs as root; a root-owned db would block the scraper user).
 - Branching: this repo has only `main` (push deploys). Features branch from `main` and merge back with `--no-ff`.
