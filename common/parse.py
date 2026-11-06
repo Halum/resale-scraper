@@ -150,11 +150,19 @@ _DATE = re.compile(r'\d{2}\.\d{2}\.\d{4}')
 _UPLOADED = re.compile(r'itemprop="upload_date"[^>]*>\s*<span[^>]*>([^<]+)</span>')
 
 
+# Current markup (2026-11) has no viewad-extra-info block; the ad's date sits
+# in embedded JSON as formattedCreationDate, after the seller's userSince date,
+# so a whole-page date scan returned the member-since date.
+_CREATED = re.compile(r'formattedCreationDate(?:&quot;|")\s*:\s*\[0,\s*(?:&quot;|")(\d{2}\.\d{2}\.\d{4})')
+
+
 def kleinanzeigen_posted_date(html):
     i = html.find("viewad-extra-info")
-    scope = html[i:i + 4000] if i >= 0 else html
-    m = _DATE.search(scope)
-    return m.group(0) if m else None
+    if i >= 0:
+        m = _DATE.search(html, i, i + 4000)
+        return m.group(0) if m else None
+    m = _CREATED.search(html)
+    return m.group(1) if m else None
 
 
 def vinted_posted_date(html):

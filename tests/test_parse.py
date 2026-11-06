@@ -92,3 +92,14 @@ def test_sold_detector_is_not_fooled_by_a_prefixed_class():
     evil = ('<span class="pvap-reserved-title-mobile">x</span>'
             '<span class="pvap-reserved-title is-hidden">y</span>')
     assert is_sold_html(evil) is False
+
+
+def test_posted_date_ignores_seller_member_since():
+    # Current markup (2026-11): no viewad-extra-info block, and the seller's
+    # userSince date comes before the ad's formattedCreationDate in the page.
+    html = ('<script>{&quot;userDetails&quot;:[0,{&quot;userSince&quot;:[0,&quot;18.10.2012&quot;]}],'
+            '&quot;formattedCreationDate&quot;:[0,&quot;05.01.2026&quot;]}</script>')
+    assert kleinanzeigen_posted_date(html) == "05.01.2026"
+    assert kleinanzeigen_posted_date(html.replace("&quot;", '"')) == "05.01.2026"
+    # No known date marker at all: unknown beats a wrong date.
+    assert kleinanzeigen_posted_date("<p>Aktiv seit 18.10.2012</p>") is None

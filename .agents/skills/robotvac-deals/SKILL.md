@@ -1,6 +1,6 @@
 ---
 name: robotvac-deals
-description: Find Sajjad the best robot vacuum deal among the scraper's Kleinanzeigen robotvac listings by opening each one in the Orca browser and checking shipping, seller age and rating, buyer protection and condition. Hides listings that fail his rules and any he dismisses. Use when he says "lookup", "any new robot for me", "any new deal for me", "best robovac deal", or dismisses a listing from a previous run.
+description: Find Sajjad the best robot vacuum deal among the scraper's Kleinanzeigen robotvac listings by reading each one in the Orca browser and checking shipping, seller age and rating, buyer protection and condition. Hides listings that fail his rules and any he dismisses. Use when he says "lookup", "any new robot for me", "any new deal for me", "best robovac deal", or dismisses a listing from a previous run.
 ---
 
 Judge by reading each listing page yourself, no regex scoring. Kleinanzeigen only: Vinted robotvac rows stay on the deals page but are out of scope here.
@@ -25,7 +25,10 @@ Use the `orca-cli` skill. Per listing:
 p=$(orca tab create --url "<url>" --json | python3 -c "import json,sys; print(json.load(sys.stdin)['result']['browserPageId'])")
 orca wait --page $p --load load --json
 orca exec --page $p --command "read" --json
+orca tab close --page $p --json
 ```
+
+Close every tab right after reading it, whatever the verdict: Sajjad opens the ones he wants from the links in the report. Before reporting, check `orca tab list --json` shows none of the listing tabs this run opened.
 
 The page text between "Bild in Vollbild" and "Nachricht schreiben" holds the price, shipping line, condition (`Zustand`) and description; the seller block follows it. A deleted or reserved listing says so near the top.
 
@@ -42,19 +45,19 @@ The page text between "Bild in Vollbild" and "Nachricht schreiben" holds the pri
 
 ## 4. Act on the result
 
-- Fails a rule: hide it and close its tab.
+- Fails a rule: hide it.
   ```bash
   curl -s -X POST https://deals.shossain.tech/api/hide -H 'Content-Type: application/json' -d '{"product":"robotvac","id":"<id>"}'
   ```
-- Deleted or sold: mark it sold instead (`/api/sold`, same body) and close its tab.
-- Passes: keep its tab open in Orca for Sajjad to look at.
+- Deleted or sold: mark it sold instead (`/api/sold`, same body).
+- Passes: goes in the report.
 
 ## 5. Report
 
 Rank the passing listings, best first. Model ranking, best first: Dreame L10s Ultra (self-emptying, mop-washing station), Roborock S7 MaxV (camera obstacle avoidance), Roborock S7 (sonic mop), Roborock Q7 Max / Q7 L5+ (strong vacuum, basic mop), then the rest. Within a model, rank by total price: price + shipping + buyer-protection fee. Included spare parts (side or main brushes, mop cloths, filters, dust bags, a spare battery) raise a listing above a similar one without them, since Sajjad then does not need to buy them; a few euros more is worth it. Name the included parts in the report.
 
-For each: model, total price, link, seller years and badges, condition, one line on anything worth asking the seller (no dock mentioned, ad-copy text that never says it was tested, battery age). Then a short list of what was hidden and why, one line each. Do not name sellers.
+For each: model, total price, link (the exact listing URL from step 1, never retyped from memory), seller years and badges, condition, one line on anything worth asking the seller (no dock mentioned, ad-copy text that never says it was tested, battery age). Then a short list of what was hidden and why, one line each. Do not name sellers.
 
 ## 6. Dismissals
 
-When Sajjad dismisses a listing ("dismiss 2", "skip the S7"), hide it with the same `/api/hide` call and close its tab. It then leaves the deals page and is not offered again.
+When Sajjad dismisses a listing ("dismiss 2", "skip the S7"), hide it with the same `/api/hide` call. It then leaves the deals page and is not offered again.
