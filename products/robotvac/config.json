@@ -1,5 +1,5 @@
 {
-  "notify": false,
+  "notify": true,
   "min_price": 15,
   "max_price": 60,
   "brands": {
