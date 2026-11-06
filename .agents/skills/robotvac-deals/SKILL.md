@@ -51,7 +51,7 @@ The page text between "Bild in Vollbild" and "Nachricht schreiben" holds the pri
 
 ## 5. Report
 
-Rank the passing listings, best first. Model ranking, best first: Dreame L10s Ultra (self-emptying, mop-washing station), Roborock S7 MaxV (camera obstacle avoidance), Roborock S7 (sonic mop), Roborock Q7 Max / Q7 L5+ (strong vacuum, basic mop), then the rest. Within a model, rank by total price: price + shipping + buyer-protection fee.
+Rank the passing listings, best first. Model ranking, best first: Dreame L10s Ultra (self-emptying, mop-washing station), Roborock S7 MaxV (camera obstacle avoidance), Roborock S7 (sonic mop), Roborock Q7 Max / Q7 L5+ (strong vacuum, basic mop), then the rest. Within a model, rank by total price: price + shipping + buyer-protection fee. Included spare parts (side or main brushes, mop cloths, filters, dust bags, a spare battery) raise a listing above a similar one without them, since Sajjad then does not need to buy them; a few euros more is worth it. Name the included parts in the report.
 
 For each: model, total price, link, seller years and badges, condition, one line on anything worth asking the seller (no dock mentioned, ad-copy text that never says it was tested, battery age). Then a short list of what was hidden and why, one line each. Do not name sellers.
 
