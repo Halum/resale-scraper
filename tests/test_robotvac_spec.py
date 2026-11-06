@@ -17,7 +17,6 @@ HITS = [
     ("Dreame Saugroboter L10s Ultra  mit Absaugstation", "L10s Ultra", "Dreame"),
     ("roborock s7 Wisch  und Saugroboter inkl. Ladestation", "S7", "Roborock"),
     ("Mi Robot Vacuum-Mop 2 Ultra  Roboter-Staubsauger", "Mop 2 Ultra", "Xiaomi"),
-    ("Xiaomi Mop Pro Saugroboter mit Zubehör", "Mop Pro", "Xiaomi"),
     ("Roborock S7 Saugroboter mit Wischfunktion", "S7", "Roborock"),
     ("Roborock S7 MaxV Ultra Saugroboter", "S7 MaxV", "Roborock"),
     ("Roborock S6 MaxV Saugroboter", "S6 MaxV", "Roborock"),
@@ -48,7 +47,6 @@ HITS = [
     ("Xiaomi Robot Vacuum S10+ Saugroboter", "S10+", "Xiaomi"),
     ("Xiaomi Robot Vacuum S10 Saugroboter", "S10", "Xiaomi"),
     ("Xiaomi Mi Robot Vacuum-Mop 2 Pro", "Mop 2 Pro", "Xiaomi"),
-    ("Mi Robot Vacuum Mop P Saugroboter", "Mop P", "Xiaomi"),
     ("Xiaomi Robot Vacuum S20+", "S20+", "Xiaomi"),
 ]
 
@@ -86,6 +84,11 @@ SKIPS = [
     ("Roborock S7 Ersatzteilspender", None, None, "bad_title"),
     ("Roborock Q7 M5 Saugroboter", None, "Roborock", "excluded_model"),
     ("Dreame D9 Pro", None, "Dreame", "excluded_model"),
+    # weaker than the D9 Pro Sajjad owns
+    ("Mi Robot Vacuum Mop P Saugroboter", None, "Xiaomi", "excluded_model"),
+    ("Xiaomi Mi Robot Vacuum-Mop P Saugroboter mit Ladestation", None, "Xiaomi", "excluded_model"),
+    ("Xiaomi Mop Pro Saugroboter mit Zubehör", None, "Xiaomi", "excluded_model"),
+    ("Xiaomi Mi Robot Vacuum Mop Pro", None, "Xiaomi", "excluded_model"),
     ("Roborock S5 Max", None, "Roborock", "excluded_model"),
     ("Roborock S5 Max mit Ladestation", None, "Roborock", "excluded_model"),
     ("Roborock S6 Pure", None, "Roborock", "excluded_model"),

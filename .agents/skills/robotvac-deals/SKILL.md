@@ -42,6 +42,7 @@ The page text between "Bild in Vollbild" and "Nachricht schreiben" holds the pri
 | Seller rating | At least one positive badge: `TOP Zufriedenheit`, `Freundlich`, `Zuverlässig` or `Sehr zuverlässig`. |
 | Condition | `Zustand` is not `Defekt`, and the description does not say it is faulty, sold as faulty, for parts, or stops working. |
 | Available | Not deleted, `Reserviert` or sold. |
+| Upgrade | The model clearly beats the Dreame D9 Pro Sajjad already owns (4,000 Pa, 5,200 mAh, basic mop, no station): more suction, a self-emptying or mop-washing station, a vibrating (sonic) mop, or camera obstacle avoidance. Same suction with a smaller battery (Xiaomi S12) fails. Check the spec with a web search when unsure. |
 
 ## 4. Act on the result
 
