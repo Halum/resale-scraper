@@ -135,7 +135,8 @@ def run(*, here, cfg, min_price, max_price, classify, combos, extra_qs="", spec_
             upsert(conn, a["id"], "vinted", "match", pr, spec_num, spec_label,
                    a["title"], a["href"], a.get("date"), replace=not only_new)
         new_hits = [h for h in hits if h[3]["id"] not in known]
-        if cfg.get("notify", True):
+        # vinted.notify overrides the product-wide notify for Vinted only
+        if cfg["vinted"].get("notify", cfg.get("notify", True)):
             notify_hits(new_hits, spec_suffix)
 
         match_total = len(rows_by_bucket(conn)["match"])
