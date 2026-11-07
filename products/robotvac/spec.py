@@ -40,7 +40,7 @@ MODELS = {b: sorted(((m, _model_re(m)) for m in ms), key=lambda x: -len(x[0]))
           for b, ms in CFG["brands"].items()}
 
 EXCLUDED = re.compile(
-    r"(?<!\w)(d9|s5|s50|s55|s6|e4|e5|e10|e12|t12|1s|lefant|mop\s*pro|mop\s*p|d10s?)(?!\w)", re.I)
+    r"(?<!\w)(d9|s5|s50|s55|s6|e4|e5|e10|e12|t12|1s|lefant|mop\s*pro|mop\s*p|d10)(?!\w)", re.I)
 
 BAD = re.compile(r"\b(suche|gesucht|ankauf|kaufe|tausch|defekt|kaputt|ersatzteil\w*|bastler|mainboard|fehler)\b", re.I)
 

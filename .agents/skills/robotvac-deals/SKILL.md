@@ -42,7 +42,7 @@ The page text between "Bild in Vollbild" and "Nachricht schreiben" holds the pri
 | Seller rating | At least one positive badge: `TOP Zufriedenheit`, `Freundlich`, `Zuverlässig` or `Sehr zuverlässig`. |
 | Condition | Fully working, nothing to fix. Fails when `Zustand` is `Defekt` or the description names any defect, however small: faulty, for parts, stops working, a broken, leaking or missing part (water tank, mop, brush, sensor, station), a feature that does not work, or anything the buyer must replace or repair. A weaker battery from normal age is fine; mention it. |
 | Available | Not deleted, `Reserviert` or sold. |
-| Upgrade | The model clearly beats the Dreame D9 Pro Sajjad already owns (4,000 Pa, 5,200 mAh, basic mop, no station): a mop-washing station, a vibrating (sonic) mop, or camera obstacle avoidance. More suction alone or a self-emptying station alone is not enough: Sajjad is fine emptying the bin by hand (so the Dreame D10, D10 Plus, D10s and D10s Plus fail), and same suction with a smaller battery (Xiaomi S12) fails. Check the spec with a web search when unsure. |
+| Upgrade | The model clearly beats the Dreame D9 Pro Sajjad already owns (4,000 Pa, 5,200 mAh, basic mop, no station): clearly more suction (above 4,000 Pa, e.g. the Dreame D10s at 5,000 Pa), better mopping (a vibrating or sonic mop, rotating mop pads, a mop-washing station), or camera obstacle avoidance. A self-emptying station alone is not enough: Sajjad is fine emptying the bin by hand (so the Dreame D10 and D10 Plus fail), and same suction with a smaller battery (Xiaomi S12) fails. Check the spec with a web search when unsure. |
 
 ## 4. Act on the result
 

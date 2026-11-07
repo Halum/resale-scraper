@@ -39,6 +39,8 @@ HITS = [
     ("Dreame L10s Ultra Saugroboter", "L10s Ultra", "Dreame"),
     ("Dreame L10s Saugroboter", "L10s", "Dreame"),
     ("Dreame D10s Pro Saugroboter", "D10s Pro", "Dreame"),
+    ("Dreame D10s Saugroboter weiß", "D10s", "Dreame"),
+    ("Dreame D10s Plus Saugroboter", "D10s Plus", "Dreame"),
     ("Dreame Z10 Pro Saugroboter", "Z10 Pro", "Dreame"),
     ("Dreame L20 Ultra Saugroboter", "L20", "Dreame"),
     ("Xiaomi Robot Vacuum X10+ Saugroboter", "X10+", "Xiaomi"),
@@ -87,10 +89,8 @@ SKIPS = [
     ("Xiaomi Mi Robot Vacuum-Mop P Saugroboter mit Ladestation", None, "Xiaomi", "excluded_model"),
     ("Xiaomi Mop Pro Saugroboter mit Zubehör", None, "Xiaomi", "excluded_model"),
     ("Xiaomi Mi Robot Vacuum Mop Pro", None, "Xiaomi", "excluded_model"),
-    # D10 family: only a station or more suction over the D9 Pro, neither wanted
+    # D10 / D10 Plus: same 4,000 Pa as the D9 Pro, a station alone is not wanted
     ("Dreame D10 Plus Saugroboter mit Absaugstation", None, "Dreame", "excluded_model"),
-    ("Dreame D10s Saugroboter weiß", None, "Dreame", "excluded_model"),
-    ("Dreame D10s Plus Saugroboter", None, "Dreame", "excluded_model"),
     ("Dreame D10 Saugroboter", None, "Dreame", "excluded_model"),
     ("Roborock S5 Max", None, "Roborock", "excluded_model"),
     ("Roborock S5 Max mit Ladestation", None, "Roborock", "excluded_model"),
