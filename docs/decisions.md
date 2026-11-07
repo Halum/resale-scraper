@@ -3,8 +3,8 @@
 ## robotvac product
 
 - Scope: used lidar robot vacuums from Roborock, Dreame and Xiaomi (incl. Mijia), 15-60 €, Kleinanzeigen and Vinted. Models live in `products/robotvac/config.json`.
-- Models older than the Dreame D9 generation are excluded (Roborock S5, S5 Max, S50, S55, S6, S6 Pure, Xiaomi 1S), as are the Dreame D9 family, gyro/camera budget models (Xiaomi E-series, T12, Roborock E4/E5, Lefant), the Roborock Q7 M5, the Xiaomi Mop P and Mop Pro (2,100 Pa, 3,200 mAh, weaker than the D9 Pro Sajjad owns), and the Dreame D10, D10 Plus, D10s and D10s Plus (only more suction or a self-emptying station over the D9 Pro).
-- The deals skill passes only models that clearly beat the D9 Pro: a mop-washing station, a sonic mop or camera obstacle avoidance. More suction or a self-emptying station alone is not enough; Sajjad empties the bin by hand.
+- Models older than the Dreame D9 generation are excluded (Roborock S5, S5 Max, S50, S55, S6, S6 Pure, Xiaomi 1S), as are the Dreame D9 family, gyro/camera budget models (Xiaomi E-series, T12, Roborock E4/E5, Lefant), the Roborock Q7 M5, the Xiaomi Mop P and Mop Pro (2,100 Pa, 3,200 mAh, weaker than the D9 Pro Sajjad owns), and the Dreame D10 and D10 Plus (same 4,000 Pa as the D9 Pro; their only gain is a self-emptying station).
+- The deals skill passes only models that clearly beat the D9 Pro: more suction (above 4,000 Pa), better mopping (sonic or rotating mop, mop-washing station) or camera obstacle avoidance. A self-emptying station alone is not enough; Sajjad empties the bin by hand.
 - The deals skill passes only fully working units: any named defect fails, even one small part (a leaking water tank, a broken mop), never "buy a new part and it works".
 - Working units only: defekt/Bastler/Ersatzteil/wanted ads skip, and an accessory word anywhere in the title skips the listing unless it follows mit/inkl/und/+/plus.
 - Search by brand, not by model: Kleinanzeigen queries `<brand> saugroboter`, Vinted bare brand queries (Vinted wants every query word in the title). `classify_vinted` falls back to the card's `marke:` text when the title has no brand. No Vinted brand ids yet.
