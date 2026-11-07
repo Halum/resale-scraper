@@ -5,6 +5,7 @@
 - Scope: used lidar robot vacuums from Roborock, Dreame and Xiaomi (incl. Mijia), 15-60 €, Kleinanzeigen and Vinted. Models live in `products/robotvac/config.json`.
 - Models older than the Dreame D9 generation are excluded (Roborock S5, S5 Max, S50, S55, S6, S6 Pure, Xiaomi 1S), as are the Dreame D9 family, gyro/camera budget models (Xiaomi E-series, T12, Roborock E4/E5, Lefant), the Roborock Q7 M5, and the Xiaomi Mop P and Mop Pro (2,100 Pa, 3,200 mAh, weaker than the D9 Pro Sajjad owns).
 - The deals skill passes only models that clearly beat the D9 Pro (more suction, a station, a sonic mop or camera obstacle avoidance).
+- The deals skill passes only fully working units: any named defect fails, even one small part (a leaking water tank, a broken mop), never "buy a new part and it works".
 - Working units only: defekt/Bastler/Ersatzteil/wanted ads skip, and an accessory word anywhere in the title skips the listing unless it follows mit/inkl/und/+/plus.
 - Search by brand, not by model: Kleinanzeigen queries `<brand> saugroboter`, Vinted bare brand queries (Vinted wants every query word in the title). `classify_vinted` falls back to the card's `marke:` text when the title has no brand. No Vinted brand ids yet.
 - robotvac runs first in both run loops, so the fastest-selling target is fetched first.
