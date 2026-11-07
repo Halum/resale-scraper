@@ -40,7 +40,7 @@ The page text between "Bild in Vollbild" and "Nachricht schreiben" holds the pri
 | Buyer protection | `Käuferschutz` or `Direkt kaufen`. Both show when logged out. |
 | Seller age | `Aktiv seit <date>` at least 3 years before today. |
 | Seller rating | At least one positive badge: `TOP Zufriedenheit`, `Freundlich`, `Zuverlässig` or `Sehr zuverlässig`. |
-| Condition | `Zustand` is not `Defekt`, and the description does not say it is faulty, sold as faulty, for parts, or stops working. |
+| Condition | Fully working, nothing to fix. Fails when `Zustand` is `Defekt` or the description names any defect, however small: faulty, for parts, stops working, a broken, leaking or missing part (water tank, mop, brush, sensor, station), a feature that does not work, or anything the buyer must replace or repair. A weaker battery from normal age is fine; mention it. |
 | Available | Not deleted, `Reserviert` or sold. |
 | Upgrade | The model clearly beats the Dreame D9 Pro Sajjad already owns (4,000 Pa, 5,200 mAh, basic mop, no station): more suction, a self-emptying or mop-washing station, a vibrating (sonic) mop, or camera obstacle avoidance. Same suction with a smaller battery (Xiaomi S12) fails. Check the spec with a web search when unsure. |
 
