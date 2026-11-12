@@ -1,4 +1,4 @@
-"""Classify/combos for MacBook Pro M1 Pro/Max/Ultra, 32-64GB, <=1400EUR.
+"""Classify/combos for MacBook Pro M1 Max, 32-64GB, <=1400EUR.
 M2-M5 have their own products (m2, m3, macbookm4, m5), so this one stays
 M1-only to keep each ad in exactly one product DB.
 Plugs into common/kleinanzeigen_engine.py + common/vinted_engine.py, which own
@@ -46,8 +46,8 @@ def classify(ad):
         return "skip", None, None, "bad_title"
     m = CHIP.search(title)
     variant = m.group(2).lower() if m and m.group(2) else None
-    if not m or variant not in ("pro", "max", "ultra"):
-        return "skip", None, (f"M{m.group(1)}" if m else None), "no_pro_max_chip_in_title"
+    if not m or variant != "max":
+        return "skip", None, (f"M{m.group(1)}" if m else None), "not_max"
     chip = f"M{m.group(1)} {variant.capitalize()}"
     rams = [int(g) for pair in RAM.findall(title) for g in pair if g]
     hits = [r for r in rams if r in WANT_RAM]

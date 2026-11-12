@@ -1,4 +1,4 @@
-"""Classify/combos for MacBook Pro/Max M3 family (any variant), 1000-3000EUR
+"""Classify/combos for MacBook M3 Max only, 1000-3000EUR
 -- price-floor scout, mirrors macbookm4/spec.py. RAM targets are the real M3
 Pro (18/36GB) and M3 Max (48/64/96/128GB) configs -- searched, not guessed.
 """
@@ -34,7 +34,7 @@ def combos():
 
 def classify(ad):
     """-> (verdict, ram, chip, reason); verdict in hit / skip. Title-only.
-    Any M3 family chip (base/Pro/Max) counts -- just not M1/M2/M4/M5."""
+    Only M3 Max counts (base/Pro dropped 2026-11-12) -- not M1/M2/M4/M5."""
     title = ad["title"]
     if BAD.search(title):
         return "skip", None, None, "bad_title"
@@ -42,6 +42,8 @@ def classify(ad):
     if not m:
         return "skip", None, None, "not_m3"
     variant = m.group(2).lower() if m.group(2) else None
+    if variant != "max":
+        return "skip", None, f"M3 {variant.capitalize()}" if variant else "M3", "not_max"
     chip = f"M3 {variant.capitalize()}" if variant else "M3"
     rams = [int(g) for pair in RAM.findall(title) for g in pair if g]
     hits = [r for r in rams if r in WANT_RAM]
