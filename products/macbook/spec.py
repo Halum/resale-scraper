@@ -1,4 +1,6 @@
-"""Classify/combos for MacBook Pro/Max/Ultra Apple Silicon, 32-64GB, <=1400EUR.
+"""Classify/combos for MacBook Pro M1 Pro/Max/Ultra, 32-64GB, <=1400EUR.
+M2-M5 have their own products (m2, m3, macbookm4, m5), so this one stays
+M1-only to keep each ad in exactly one product DB.
 Plugs into common/kleinanzeigen_engine.py + common/vinted_engine.py, which own
 the actual scrape loop, browser setup, DB, and export.
 """
@@ -23,7 +25,7 @@ RAM = re.compile(
     rf"\b{RAM_NUM}\s*(?:gb|g\b)"
     rf"|\b{RAM_NUM}\s*/\s*\d+\s*(?:gb|tb)\b",
     re.I)
-CHIP = re.compile(r"\bm([1-4])\s*(pro|max|ultra)?\b", re.I)
+CHIP = re.compile(r"\bm(1)\s*(pro|max|ultra)?\b", re.I)
 
 
 def combos():
