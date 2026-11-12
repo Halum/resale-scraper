@@ -15,4 +15,4 @@ The daily `common/check_sold.py` only gets through 400 ads a day, so sold ads pi
 4. **Push each group as soon as its agent finishes**, don't wait for the rest: `bash S/push.sh Gk` (`--dry` first if unsure). It backs the server DBs up once a day to `/tmp/sold-sweep-bak-<date>`, then writes `sold/sold_at/checked_at` (live: `checked_at` only) to every DB holding the ad. Re-running is harmless: already-sold rows are skipped.
 5. **Report** a table per group (checked, sold, live) and what the pushes wrote. Agents' own counts are sometimes off; take numbers from `W/Gk.db`.
 
-Unknown/error rows are never pushed; `next` hands them out again on a re-run. Vinted ads are out of scope (no proven sold marker).
+Unknown/error rows are never pushed; `next` hands them out again once every unchecked ad in the group is done (an agent stops after the same id 3 times, so a stuck ad ends the run instead of looping). Vinted ads are out of scope (no proven sold marker).
