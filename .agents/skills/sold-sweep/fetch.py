@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
-"""fetch.py [--products a,b] [--like text] [--limit 500] [--size 100]
+"""fetch.py [--products a,b] [--like text] [--limit 500] [--size 100] [--skip-days 7]
 Pull the not-yet-sold Kleinanzeigen ads from the scraper host, one entry per
 ad id (an ad can sit in several product DBs), least-recently-checked first,
-keep --limit of them, and split those into work groups G1..Gn of --size ads in
+drop ads checked in the last --skip-days days (a sweep already found
+them live), keep --limit of them, and split those into work groups G1..Gn of --size ads in
 the work dir. Starts a fresh run: old group files go. The next sweep picks up
 where this one stopped, because every pushed ad gets a fresh checked_at."""
-import argparse, json, os, pathlib, subprocess
+import argparse, datetime, json, os, pathlib, subprocess
 
 W = pathlib.Path(os.environ.get("SOLD_SWEEP_DIR", pathlib.Path.home() / ".cache/sold-sweep"))
 ap = argparse.ArgumentParser()
 ap.add_argument("--products", default="macbook,macbookm4,m2,m3,m5")
 ap.add_argument("--like", help="only titles containing this text (case-insensitive)")
+ap.add_argument("--skip-days", type=int, default=7, help="skip ads checked this recently")
 ap.add_argument("--limit", type=int, default=500, help="ads per sweep (5 agents of 100)")
 ap.add_argument("--size", type=int, default=100)
 a = ap.parse_args()
@@ -38,9 +40,11 @@ for line in out.splitlines():
 W.mkdir(parents=True, exist_ok=True)
 for f in list(W.glob("G*.json")) + list(W.glob("G*.db")):
     f.unlink()
-everything = sorted(ads.values(), key=lambda ad: ad["checked_at"])
+cutoff = (datetime.date.today() - datetime.timedelta(days=a.skip_days)).isoformat()
+recent = sum(ad["checked_at"] >= cutoff for ad in ads.values())
+everything = sorted((ad for ad in ads.values() if ad["checked_at"] < cutoff), key=lambda ad: ad["checked_at"])
 L = everything[:a.limit]
 for n in range(0, len(L), a.size):
     (W / f"G{n // a.size + 1}.json").write_text(json.dumps(L[n:n + a.size], ensure_ascii=False))
 print(f"{len(L)} of {len(everything)} unsold ads -> {-(-len(L) // a.size)} groups of up to {a.size} in {W}; "
-      f"{len(everything) - len(L)} left for later sweeps")
+      f"{len(everything) - len(L)} left for later sweeps; {recent} skipped as checked since {cutoff}")
