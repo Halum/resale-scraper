@@ -28,7 +28,8 @@ sleep $((RANDOM % 900))
 
 FAILURES=()
 {
-  for product in robotvac macbook charger macbookm4 m2 m3 m5 router ipad; do
+  # charger paused 2026-11-12: add it back to this list to resume scraping it
+  for product in robotvac macbook macbookm4 m2 m3 m5 router ipad; do
     echo "== $(date +%T) $product/vinted =="
     (cd "products/$product" && timeout -k 30 "$PRODUCT_TIMEOUT" uv run python vinted.py)
     rc=$?
