@@ -12,13 +12,11 @@
     128
   ],
   "chips": [
-    "m3",
-    "m3 pro",
     "m3 max"
   ],
   "fallback_queries": [
-    "macbook pro m3",
-    "macbook m3"
+    "macbook pro m3 max",
+    "macbook m3 max"
   ],
   "kleinanzeigen": {
     "cat": "",

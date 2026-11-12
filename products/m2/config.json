@@ -9,13 +9,11 @@
     96
   ],
   "chips": [
-    "m2",
-    "m2 pro",
     "m2 max"
   ],
   "fallback_queries": [
-    "macbook pro m2",
-    "macbook m2"
+    "macbook pro m2 max",
+    "macbook m2 max"
   ],
   "kleinanzeigen": {
     "cat": "",

@@ -10,13 +10,10 @@
     64
   ],
   "chips": [
-    "m1",
-    "m1 pro",
     "m1 max"
   ],
   "fallback_queries": [
-    "macbook pro",
-    "macbook"
+    "macbook m1 max"
   ],
   "kleinanzeigen": {
     "cat": "",
