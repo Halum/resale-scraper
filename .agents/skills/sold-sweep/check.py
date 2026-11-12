@@ -28,8 +28,10 @@ db.execute("CREATE TABLE IF NOT EXISTS results (id TEXT PRIMARY KEY, products TE
            "status TEXT, detail TEXT, checked_at TEXT)")
 
 if sys.argv[2] == "next":
-    done = {r[0] for r in db.execute("SELECT id FROM results WHERE status != 'error'")}
-    print(next((i for i in ads if i not in done), "DONE"))
+    status = dict(db.execute("SELECT id, status FROM results"))
+    # unchecked ads first, then unknown/error retries, so one stuck ad can't block the rest
+    retry = [i for i in ads if status.get(i) in ("unknown", "error")]
+    print(next((i for i in ads if i not in status), retry[0] if retry else "DONE"))
     sys.exit()
 
 page, ad_id = sys.argv[2], sys.argv[3]
