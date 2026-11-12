@@ -4,7 +4,7 @@ check.py <group> <page_id> <id>   -> open the ad in that Orca tab, classify,
                                      record in <group>.db, print one line.
 Sold = redirected off the ad page (deleted) or a Gelöscht/Verkauft/Reserviert
 prefix in the #viewad-title heading, as Orca's browser renders the page."""
-import datetime, json, os, pathlib, sqlite3, subprocess, sys, time
+import datetime, json, os, pathlib, random, sqlite3, subprocess, sys, time
 
 W = pathlib.Path(os.environ.get("SOLD_SWEEP_DIR", pathlib.Path.home() / ".cache/sold-sweep"))
 EXPR = r"""(()=>{const u=location.href;if(!u.includes('/s-anzeige/'))return 'sold|removed->'+u;
@@ -47,4 +47,4 @@ db.execute("INSERT OR REPLACE INTO results VALUES (?,?,?,?,?,?)",
             datetime.datetime.now().isoformat(timespec="seconds")))
 db.commit()
 print(ad_id, status, detail)
-time.sleep(4)  # ponytail: fixed pace per ad, raise it if Kleinanzeigen starts challenging
+time.sleep(random.uniform(5, 10))  # ponytail: random pace per ad; 4 s fixed with 10 tabs got the IP blocked

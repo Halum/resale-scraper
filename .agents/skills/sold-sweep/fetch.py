@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""fetch.py [--products a,b] [--like text] [--limit 1000] [--size 100]
+"""fetch.py [--products a,b] [--like text] [--limit 500] [--size 100]
 Pull the not-yet-sold Kleinanzeigen ads from the scraper host, one entry per
 ad id (an ad can sit in several product DBs), least-recently-checked first,
 keep --limit of them, and split those into work groups G1..Gn of --size ads in
@@ -11,7 +11,7 @@ W = pathlib.Path(os.environ.get("SOLD_SWEEP_DIR", pathlib.Path.home() / ".cache/
 ap = argparse.ArgumentParser()
 ap.add_argument("--products", default="macbook,macbookm4,m2,m3,m5")
 ap.add_argument("--like", help="only titles containing this text (case-insensitive)")
-ap.add_argument("--limit", type=int, default=1000, help="ads per sweep (10 agents of 100)")
+ap.add_argument("--limit", type=int, default=500, help="ads per sweep (5 agents of 100)")
 ap.add_argument("--size", type=int, default=100)
 a = ap.parse_args()
 
